@@ -39,19 +39,18 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
     const { firstname, lastname, email, phone, roles, bank, password } = req.body;
+    const bankExists = await Bank.findByPk(bank);
+    if (!bankExists) {
+        return res.status(400).json({ message: 'Bank does not exist' });
+    }
     // Check if user with same email exists
     const existingUser = await User.findOne({
         where: {
         [Op.or]: [{ phone }, { email }]
       }
     });
-    const bankExists = await Bank.findByPk(bank);
-    if (!bankExists) {
-        return res.status(400).json({ message: 'Bank does not exist' });
-    }
-
     if (existingUser) {
-        return res.status(400).json({ message: 'User with this email already exists' });
+        return res.status(400).json({ message: 'User with this email or phone already exists' });
     }
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
     try {
