@@ -1,6 +1,9 @@
 const express = require('express');
 require('dotenv').config();
 const sequelize = require('./db/connection');
+const { Bank, User } = require('./models/association'); // Adjust the path as necessary
+const bankRoutes = require('./routes/bankRoute'); // Import your bank routes
+const userRoutes = require('./routes/userRoute'); // Import your user routes
 
 const app = express();
 
@@ -17,7 +20,16 @@ sequelize.authenticate()
 app.use(express.json());
 
 // use Route
+app.use('/api/v1/bank', bankRoutes); // Use the bank routes
+app.use('/api/v1/user', userRoutes); // Use the user routes
 
+
+sequelize.sync({ alter: true }) // Use alter: true in development to update the schema
+.then(() => {
+    console.log('✅ Table synchronized successfully.');
+}) .catch((error) => {
+    console.error('❌ Error synchronizing table:', error);
+});
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
