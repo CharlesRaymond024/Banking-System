@@ -41,7 +41,9 @@ exports.createUser = async (req, res) => {
     const { firstname, lastname, email, phone, roles, bank, password } = req.body;
     // Check if user with same email exists
     const existingUser = await User.findOne({
-        where: { email }
+        where: {
+        [Op.or]: [{ phone }, { email }]
+      }
     });
     const bankExists = await Bank.findByPk(bank);
     if (!bankExists) {
