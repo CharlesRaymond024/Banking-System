@@ -2,6 +2,8 @@ const Bank = require('./Bank');
 const User = require('./User');
 const Account = require('./Account');
 const Card = require('./Card')
+const Transaction = require('./Transaction');
+const Notification = require('./Notification');
 
 // Define the association between User and Bank
 User.belongsTo(Bank, {
@@ -19,8 +21,32 @@ Account.belongsTo(User, {
     foreignKey: 'user', // Foreign key in Account table
 });
 
+// Define the association between Account and Card
+
 Account.hasMany(Card, { foreignKey: 'account' });
 Card.belongsTo(Account, { foreignKey: 'account' });
+
+// Define the association between transactions and Account
+Account.hasMany(Transaction, {
+    foreignKey: 'account', // Foreign key in Transaction table
+});
+Transaction.belongsTo(Account, {
+    foreignKey: 'account', // Foreign key in Transaction table
+});
+// Define the association between transactions and User
+User.hasMany(Transaction, {
+    foreignKey: 'user', // Foreign key in Transaction table
+});
+Transaction.belongsTo(User, {
+    foreignKey: 'user', // Foreign key in Transaction table
+});
+
+Notification.associate = (models) => {
+  Notification.belongsTo(models.User, {
+    foreignKey: 'user',
+    as: 'user',
+  });
+};
 
 // Export the models
 module.exports = {
@@ -28,4 +54,6 @@ module.exports = {
     User,
     Account,
     Card,
+    Transaction,
+    Notification,
 };
