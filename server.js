@@ -1,13 +1,14 @@
 const express = require('express');
 require('dotenv').config();
 const sequelize = require('./db/connection');
-const { Bank, User, Account, Card, Transaction, Notification  } = require('./models/association'); // Adjust the path as necessary
+const models = require('./models/association'); // Adjust the path as necessary
 const bankRoutes = require('./routes/bankRoute'); // Import your bank routes
 const userRoutes = require('./routes/userRoute'); // Import your user routes
 const accountRoutes = require('./routes/accountRoute'); // Import your account routes
 const cardRoutes = require('./routes/cardRoute'); // Import your card routes
 const transactionRoutes = require('./routes/transactionRoute'); // Import your transaction routes
 const notificationRoutes = require('./routes/notificationRoute'); // Import your notification routes
+const userAccountRoutes = require('./routes/userAccountRoute'); // Import your user account routes
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/v1/account', accountRoutes); // Use the account routes
 app.use('/api/v1/card', cardRoutes); // Use the card routes
 app.use('/api/v1/transaction', transactionRoutes); // Use the transaction routes
 app.use('/api/v1/notification', notificationRoutes); // Use the notification routes
+app.use('/api/v1/userAccount', userAccountRoutes); // Use the user account routes
 
 
 sequelize.sync({ alter: true }) // Use alter: true in development to update the schema
