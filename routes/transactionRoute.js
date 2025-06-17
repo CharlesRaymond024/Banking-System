@@ -16,6 +16,7 @@ router.get('/get/type/:type', transactionController.getTransactionsByType);
 router.get('/get/status/:status', transactionController.getTransactionsByStatus);
 // Route to get transactions by date range
 router.get('/get/date', transactionController.getTransactionsByDateRange);
+// Route to create a new transaction
 router.post('/transfer', transactionController.createTransferTransaction);
 router.post('/deposit', transactionController.createDepositTransaction);
 router.post('/withdrawal', transactionController.createWithdrawTransaction);
