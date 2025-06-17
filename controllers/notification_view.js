@@ -1,5 +1,6 @@
 const Notification = require('../models/Notification');
 const Account = require('../models/Account');
+const getUserBalance = require('../helpers/getBalances');
 const User = require('../models/User');
 
 
@@ -24,28 +25,21 @@ exports.getUserNotifications = async (req, res) => {
   try {
     const { user_id } = req.params;
 
-    // 1. Get user's notifications
     const notifications = await Notification.findAll({
       where: { user: user_id },
       order: [['createdAt', 'DESC']]
     });
 
-    // 2. Get the user's account balance
-    const account = await Account.findOne({
-      where: { user: user_id },
-      attributes: ['balance']
-    });
-
-    if (!account) {
-      return res.status(404).json({ success: false, message: 'Account not found for this user.' });
+    const updatedBalance = await getUserBalance(user_id);
+    if (updatedBalance === null) {
+      return res.status(404).json({ success: false, message: 'Account not found.' });
     }
 
-    // 3. Return both notifications and current balance
     res.status(200).json({
       success: true,
       data: {
-        balance: account.balance,
-        notifications
+        notifications,
+        updatedBalance
       }
     });
 
@@ -54,6 +48,7 @@ exports.getUserNotifications = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
+
 
 exports.deleteNotification = async (req, res) => {
   try {

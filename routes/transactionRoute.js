@@ -16,11 +16,13 @@ router.get('/get/type/:type', transactionController.getTransactionsByType);
 router.get('/get/status/:status', transactionController.getTransactionsByStatus);
 // Route to get transactions by date range
 router.get('/get/date', transactionController.getTransactionsByDateRange);
-// route to create a new transaction
-router.post('/create', transactionController.createTransaction);
+router.post('/transfer', transactionController.createTransferTransaction);
+router.post('/deposit', transactionController.createDepositTransaction);
+router.post('/withdrawal', transactionController.createWithdrawTransaction);
 // Route to update a transaction by ID
 router.put('/update/:id', transactionController.updateTransaction);
 // Route to delete a transaction by ID
 router.delete('/delete/:id', transactionController.deleteTransaction);
+
 
 module.exports = router;

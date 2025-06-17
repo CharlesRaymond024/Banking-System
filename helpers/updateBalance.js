@@ -1,23 +1,36 @@
+// helpers/updateBalances.js
 const Account = require('../models/Account');
 
-const updateBalance = async ({ from_acct_id, to_acct_id, amount }) => {
-  const senderAccount = await Account.findOne({ where: { user: from_acct_id } });
-  const receiverAccount = await Account.findOne({ where: { user: to_acct_id } });
+const updateBalances = async (senderId, receiverId, amount, type) => {
+  const sender = await Account.findOne({ where: { user: senderId } });
+  const receiver = await Account.findOne({ where: { user: receiverId } });
+  // converts amount to number
+  amount = parseFloat(amount)
 
-  if (!senderAccount || !receiverAccount) {
-    throw new Error('One or both accounts not found.');
+  if (type === 'transfer' && sender && receiver) {
+    sender.balance = parseFloat(sender.balance || 0) - amount;
+    receiver.balance = parseFloat(receiver.balance || 0) + amount;
+    await sender.save();
+    await receiver.save();
+    return {
+      senderBalance: Number(sender.balance.toFixed(2)),
+      receiverBalance: Number(receiver.balance.toFixed(2))
+    };
   }
 
-  senderAccount.balance -= amount;
-  receiverAccount.balance += amount;
+  if (type === 'withdrawal' && sender) {
+    sender.balance = parseFloat(sender.balance || 0) - amount;
+    await sender.save();
+    return { senderBalance: Number(sender.balance.toFixed(2)) };
+  }
 
-  await senderAccount.save();
-  await receiverAccount.save();
+  if (type === 'deposit' && receiver) {
+    receiver.balance = parseFloat(receiver.balance || 0) + amount;
+    await receiver.save();
+    return { receiverBalance: Number(receiver.balance.toFixed(2)) };
+  }
 
-  return {
-    senderBalance: senderAccount.balance,
-    receiverBalance: receiverAccount.balance,
-  };
+  return null;
 };
 
-module.exports = { updateBalance };
+module.exports = updateBalances;

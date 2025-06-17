@@ -1,29 +1,33 @@
-const createNotification = require('./createTransactionNotification');
-const {updateBalance} = require('./updateBalance');
+const createTransactionNotification = require('./createNotifications');
+const updateBalance = require('./updateBalance');
 
-const handleTransactionEffects = async ({ transactionType, from_acct_id, to_acct_id, amount }) => {
-  if (transactionType === 'transfer') {
-    const balances = await updateBalance(from_acct_id, to_acct_id, amount);
+const handleTransactionEffect = async ({ senderId, receiverId, type, amount }) => {
+  const notifications = [];
 
-    const debitNote = await createNotification({ user: from_acct_id, type: 'debit', amount });
-    const creditNote = await createNotification({ user: to_acct_id, type: 'credit', amount });
+  const balances = await updateBalance(senderId, receiverId, amount, type);
 
-    return { debitNote, creditNote, balances };
+  if (type === 'transfer') {
+    const debitMsg = `₦${amount} has been debited from your account.`;
+    const creditMsg = `₦${amount} has been credited to your account.`;
+
+    notifications.push(await createTransactionNotification(senderId, debitMsg, 'debit'));
+    notifications.push(await createTransactionNotification(receiverId, creditMsg, 'credit'));
   }
 
-  if (transactionType === 'deposit') {
-    const account = await updateBalance(null, from_acct_id, -amount); // Just credit
-    const creditNote = await createNotification({ user: from_acct_id, type: 'credit', amount });
-    return { creditNote, balance: account.receiverBalance };
+  if (type === 'deposit') {
+    const msg = `₦${amount} has been deposited to your account.`;
+    notifications.push(await createTransactionNotification(receiverId, msg, 'credit'));
   }
 
-  if (transactionType === 'withdrawal') {
-    const account = await updateBalance(senderId, null, amount); // Just debit
-    const debitNote = await createNotification({ user: from_acct_id, type: 'debit', amount });
-    return { debitNote, balance: account.senderBalance };
+  if (type === 'withdrawal') {
+    const msg = `₦${amount} has been withdrawn from your account.`;
+    notifications.push(await createTransactionNotification(senderId, msg, 'debit'));
   }
 
-  return null;
+  return {
+    notifications,
+    balances
+  };
 };
 
-module.exports = handleTransactionEffects;
+module.exports = handleTransactionEffect;

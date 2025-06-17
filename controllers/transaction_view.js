@@ -1,13 +1,14 @@
 const Transaction = require('../models/Transaction');
 const Account = require('../models/Account');
 const User = require('../models/User');
-const handleTransactionEffects = require('../helpers/handleTransactionEffect');
+const handleTransactionEffect = require('../helpers/handleTransactionEffect');
+const updateBalances = require('../helpers/updateBalance');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
 exports.getAllTransactions = async (req, res) => {
   try {
-    const transactions = await Transaction.findAll({ include: [Account, User] });
+    const transactions = await Transaction.findAll({ include: [Account] });
     res.status(200).json({ transactions });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch transactions', error: error.message });
@@ -122,60 +123,134 @@ exports.getTransactionsByDateRange = async (req, res) => {
     }
 }
 
-exports.createTransaction = async (req, res) => {
+exports.createTransferTransaction = async (req, res) => {
   try {
-    const {
-      account,
-      transaction_type,
-      amount,
-      description,
-      from_acct_id,
-      to_acct_id,
-      user,
-      transferPin
-    } = req.body;
-    // Validate account existence
-    const acct = await Account.findByPk(account);
-    if (!acct) {
-      return res.status(404).json({ message: 'Account not found.' });
-    }
-    // Validate user existence
+    const { amount, from_acct_id, to_acct_id, user, transferPin } = req.body;
+
+    const senderAccount = await Account.findByPk(from_acct_id);
+    const receiverAccount = await Account.findByPk(to_acct_id);
     const userRecord = await User.findByPk(user);
-    if (!userRecord) {
-      return res.status(404).json({ message: 'User not found.' });
+
+    if (!senderAccount || !receiverAccount || !userRecord) {
+      return res.status(404).json({ message: 'Invalid account or user.' });
     }
 
-    // Optional: validate user and PIN
     const hashedPin = await bcrypt.hash(transferPin, 4);
 
     const transaction = await Transaction.create({
-      account,
-      transaction_type,
+      account: from_acct_id,
+      transaction_type: 'transfer',
       amount,
-      description,
+      description: `Transfer to account ${to_acct_id}`,
       from_acct_id,
       to_acct_id,
       user,
-      transferPin: hashedPin,
-    });
-    const effects = await handleTransactionEffects({
-        from_acct_id,
-        to_acct_id,
-        transactionType: transaction_type,
-        amount
+      transferPin: hashedPin
     });
 
-    return res.status(200).json({
+    const updatedBalances = await handleTransactionEffect({
+      senderId: from_acct_id,
+      receiverId: to_acct_id,
+      amount,
+      type: 'transfer'
+    });
+
+    res.status(200).json({
       success: true,
-      message: 'Transaction completed successfully',
+      message: 'Transfer successful',
       transaction,
-      effects
+      updatedBalances
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+};
+
+
+// controllers/depositController.js
+exports.createDepositTransaction = async (req, res) => {
+  try {
+    const { amount, to_acct_id, user } = req.body;
+
+    const receiverAccount = await Account.findByPk(to_acct_id);
+    const userRecord = await User.findByPk(user);
+
+    if (!receiverAccount || !userRecord) {
+      return res.status(404).json({ message: 'Invalid account or user.' });
+    }
+
+    const transaction = await Transaction.create({
+      account: to_acct_id,
+      transaction_type: 'deposit',
+      amount,
+      description: 'Account deposit',
+      from_acct_id: null,
+      to_acct_id,
+      user,
+      transferPin: null
     });
 
+    const updatedBalances = await handleTransactionEffect({
+      senderId: null,
+      receiverId: to_acct_id,
+      amount,
+      type: 'deposit'
+    });
 
-  } catch (error) {
-    console.error('Transaction Error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(200).json({
+      success: true,
+      message: 'Deposit successful',
+      transaction,
+      updatedBalances
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+};
+
+// controllers/withdrawalController.js
+exports.createWithdrawTransaction = async (req, res) => {
+  try {
+    const { amount, from_acct_id, user, transferPin } = req.body;
+
+    const senderAccount = await Account.findByPk(from_acct_id);
+    const userRecord = await User.findByPk(user);
+
+    if (!senderAccount || !userRecord) {
+      return res.status(404).json({ message: 'Invalid account or user.' });
+    }
+
+    const hashedPin = await bcrypt.hash(transferPin, 4);
+
+    const transaction = await Transaction.create({
+      account: from_acct_id,
+      transaction_type: 'withdrawal',
+      amount,
+      description: 'Account withdrawal',
+      from_acct_id,
+      to_acct_id: null,
+      user,
+      transferPin: hashedPin
+    });
+
+    const updatedBalances = await handleTransactionEffect({
+      senderId: from_acct_id,
+      receiverId: null,
+      amount,
+      type: 'withdrawal'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Withdrawal successful',
+      transaction,
+      updatedBalances
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
 
