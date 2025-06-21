@@ -22,7 +22,7 @@ const Account = sequelize.define('Account', {
   },
   
   accountType: {
-    type: DataTypes.ENUM('savings', 'current', 'fixed', 'joint'),
+    type: DataTypes.ENUM('savings', 'current', 'fixed'),
     allowNull: false,
     defaultValue: 'savings'
   },

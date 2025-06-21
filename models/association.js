@@ -4,6 +4,8 @@ const Account = require('./Account');
 const Card = require('./Card')
 const Transaction = require('./Transaction');
 const Notification = require('./Notification');
+const JointAccount = require('./JointAccount')
+const UserJointAccount = require('./UserJointAccount')
 
 
 // Define the association between User and Bank
@@ -49,6 +51,15 @@ Notification.associate = (models) => {
   });
 }
 
+User.belongsToMany(JointAccount,{
+    through: UserJointAccount,
+    foreignKey: 'user'
+})
+
+JointAccount.belongsToMany(User,{
+    through: UserJointAccount,
+    foreignKey: 'jointAccount'
+})
 
 
 
@@ -60,4 +71,6 @@ module.exports = {
     Card,
     Transaction,
     Notification,
+    JointAccount,
+    UserJointAccount
 };
