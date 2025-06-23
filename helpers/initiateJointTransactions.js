@@ -52,7 +52,7 @@ const initiateJointTransaction = async ({ type, amount, fromAccountId, toAccount
         account.balance = parseFloat(account.balance) - parseFloat(amount);
         await account.save();
 
-        updatedBalance = account.balance;
+        
 
         await Transaction.create({
             account: fromAccountId, // required
@@ -65,6 +65,7 @@ const initiateJointTransaction = async ({ type, amount, fromAccountId, toAccount
         });
 
         await notifyAllJointUsers(fromAccountId, `₦${amount} withdrawal made. New balance: ₦${updatedBalance}`, type);
+        return updatedBalance = account.balance;
     }
   if (type === 'transfer') {
         const fromAccount = await JointAccount.findByPk(fromAccountId);
