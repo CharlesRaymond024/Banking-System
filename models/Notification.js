@@ -21,7 +21,7 @@ const Notification = sequelize.define('Notification', {
         allowNull: false,
     },
     type: {
-        type: DataTypes.ENUM('credit', 'debit', 'error'),
+        type: DataTypes.ENUM('credit', 'debit', 'deposit', 'withdrawal', 'transfer'),
         allowNull: false,
     },
     time: {

@@ -2,6 +2,7 @@ const Transaction = require('../models/Transaction');
 const Account = require('../models/Account');
 const User = require('../models/User');
 const handleTransactionEffect = require('../helpers/handleTransactionEffect');
+const initiateJointTransaction = require('../helpers/initiateJointTransactions');
 const updateBalances = require('../helpers/updateBalance');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
@@ -346,3 +347,26 @@ exports.getTransactionsByStatus = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
+exports.createJointTransaction = async (req, res) => {
+  try {
+    const { type, amount, fromAccountId, toAccountId, initiatedBy } = req.body;
+
+    if (!['deposit', 'withdrawal', 'transfer'].includes(type)) {
+      return res.status(400).json({ error: 'Invalid transaction type' });
+    }
+
+    const newBalance = await initiateJointTransaction({
+      type,             // becomes transaction_type
+      amount,
+      fromAccountId,
+      toAccountId,
+      initiatedBy       // becomes user
+    });
+
+    res.status(201).json({ message: `${type} successful`, newBalance });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};

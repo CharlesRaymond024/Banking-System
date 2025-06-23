@@ -20,6 +20,8 @@ router.get('/get/date', transactionController.getTransactionsByDateRange);
 router.post('/transfer', transactionController.createTransferTransaction);
 router.post('/deposit', transactionController.createDepositTransaction);
 router.post('/withdrawal', transactionController.createWithdrawTransaction);
+// Route to create a joint transaction
+router.post('/joint', transactionController.createJointTransaction);
 // Route to update a transaction by ID
 router.put('/update/:id', transactionController.updateTransaction);
 // Route to delete a transaction by ID

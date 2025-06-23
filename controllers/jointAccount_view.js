@@ -35,7 +35,7 @@ exports.getAllJointAccounts = async (req, res) => {
         const jointAccounts = await JointAccount.findAll({
             include: [
                 {
-                    model: User, attributes:['firstname' , 'lastname'],
+                    model: User, attributes:['id', 'firstname' , 'lastname'],
                     through: {attributes: []}
                 }
             ]
@@ -52,7 +52,7 @@ exports.getJointAccountById = async (req, res) => {
         const account = await JointAccount.findByPk(id,{
             include: [
                 {
-                    model: User, attributes:['firstname' , 'lastname'],
+                    model: User, attributes:['id', 'firstname' , 'lastname'],
                     through: {attributes: []}
                 }
             ]
@@ -77,8 +77,8 @@ exports.addUsersToJointAccount = async (req, res) => {
         const newUsers = [...new Set (users)]
 
         const currentUsers = await jointAccount.getUsers()
-        const existingUsers = currentUsers.map(user => user.id)
-        const filteredIds = newUsers.filter(id => !existingUsers.include(id))
+        const existingUsers = currentUsers.map(users => users.id)
+        const filteredIds = newUsers.filter(id => !existingUsers.includes(id))
 
         if(filteredIds.length === 0) {
             return res.status(400).json ({error: 'No new users to add'})
@@ -88,6 +88,7 @@ exports.addUsersToJointAccount = async (req, res) => {
         await jointAccount.addUsers(usersToAdd)
         res.status(200).json({message: 'Users added succeccfully'})
     }catch(error){
+        console.error(error)
         res.status(500).json({error: 'Failed to add new Users'})
     }
 }
@@ -103,5 +104,25 @@ exports.deleteJointAccount = async (req, res) => {
         
     }catch(error){
         res.status(500).json({error: 'Failed to delete account'})
+    }
+}
+
+exports.removeUserFromJointAccount = async (req, res) => {
+    try{
+        const {id} = req.params;
+        const {users} = req.body;
+        const jointAccount = await JointAccount.findByPk(id);
+        if (!jointAccount) return res.status(404).json ({error: 'JointAccount not found'})
+        if (!Array.isArray(users) || users.length === 0) {
+            return res.status(400).json({error: 'Users must be an array and cannot be empty'});
+        }
+        const user = await User.findAll({ where: { id: users } });
+        if (!user) return res.status(404).json({error: 'User not found'})
+
+        await jointAccount.removeUser(users)
+        res.status(200).json({message: 'User removed successfully'})
+    }catch(error){
+        console.error(error)
+        res.status(500).json({error: 'Failed to remove user'})
     }
 }
