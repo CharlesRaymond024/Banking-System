@@ -67,11 +67,6 @@ const Transaction = sequelize.define('Transaction', {
         },
         allowNull: false,
     },
-
-  transferPin: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
 }, {
   timestamps: true,
   tableName: 'transactions',

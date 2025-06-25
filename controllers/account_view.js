@@ -1,5 +1,6 @@
 const Account = require('../models/Account');
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
 exports.getAllAccounts = async (req, res) => {
@@ -37,7 +38,7 @@ exports.getAccountById = async (req, res) => {
 }
 
 exports.createAccount = async (req, res) => {
-    const { accountName, accountNumber, accountType, user, balance, currency } = req.body;
+    const { accountName, accountNumber, accountType, user, balance, currency, transferPin } = req.body;
     
     // Check if user exists
     const existingUser = await User.findByPk(user);
@@ -53,6 +54,7 @@ exports.createAccount = async (req, res) => {
     if (existingAccount) {
         return res.status(400).json({ message: 'Account with this number already exists' });
     }
+    const hashedPin = await bcrypt.hash(transferPin, 4);
 
     try {
         const newAccount = await Account.create({
@@ -62,6 +64,7 @@ exports.createAccount = async (req, res) => {
             user,
             balance,
             currency,
+            transferPin: hashedPin,
         });
         res.status(201).json(newAccount);
     } catch (error) {
@@ -72,7 +75,7 @@ exports.createAccount = async (req, res) => {
 
 exports.updateAccount = async (req, res) => {
     const { id } = req.params;
-    const { accountName, accountNumber, accountType, user, balance, currency } = req.body;
+    const { accountName, accountNumber, accountType, user, balance, currency, transferPin } = req.body;
 
     try {
         const account = await Account.findByPk(id);
@@ -87,6 +90,10 @@ exports.updateAccount = async (req, res) => {
         account.user = user || account.user;
         account.balance = balance !== undefined ? balance : account.balance;
         account.currency = currency || account.currency;
+        account.transferPin = transferPin || account.transferPin;
+        if (transferPin) {
+            account.transferPin = await bcrypt.hash(transferPin, 4); // Hash the new transfer pin
+        }
 
         await account.save();
         res.status(200).json(account);

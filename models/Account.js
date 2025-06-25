@@ -45,6 +45,12 @@ const Account = sequelize.define('Account', {
     allowNull: false,
     defaultValue: 'USD'
   },
+  
+  transferPin: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+    },
 
   isActive: {
     type: DataTypes.BOOLEAN,

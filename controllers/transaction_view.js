@@ -6,6 +6,7 @@ const initiateJointTransaction = require('../helpers/initiateJointTransactions')
 const updateBalances = require('../helpers/updateBalance');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
+const JointAccount = require('../models/JointAccount');
 
 exports.getAllTransactions = async (req, res) => {
   try {
@@ -136,7 +137,15 @@ exports.createTransferTransaction = async (req, res) => {
       return res.status(404).json({ message: 'Invalid account or user.' });
     }
 
-    const hashedPin = await bcrypt.hash(transferPin, 4);
+    // validate transferPin
+    const isMatch = await bcrypt.compare(transferPin, senderAccount.transferPin);
+    if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid transfer pin.' });
+    }
+    // check for sufficient balance
+    if (parseFloat(senderAccount.balance) < parseFloat(amount)) {
+      return res.status(400).json({ message: 'Insufficient balance for transfer.' });
+    }
 
     const transaction = await Transaction.create({
       account: from_acct_id,
@@ -146,7 +155,6 @@ exports.createTransferTransaction = async (req, res) => {
       from_acct_id,
       to_acct_id,
       user,
-      transferPin: hashedPin
     });
 
     const updatedBalances = await handleTransactionEffect({
@@ -214,7 +222,7 @@ exports.createDepositTransaction = async (req, res) => {
 // controllers/withdrawalController.js
 exports.createWithdrawTransaction = async (req, res) => {
   try {
-    const { amount, from_acct_id, user, transferPin } = req.body;
+    const { amount, from_acct_id, user } = req.body;
 
     const senderAccount = await Account.findByPk(from_acct_id);
     const userRecord = await User.findByPk(user);
@@ -223,7 +231,15 @@ exports.createWithdrawTransaction = async (req, res) => {
       return res.status(404).json({ message: 'Invalid account or user.' });
     }
 
-    const hashedPin = await bcrypt.hash(transferPin, 4);
+    // validate transferPin
+    const isMatch = await bcrypt.compare(req.body.transferPin, senderAccount.transferPin);
+    if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid transfer pin.' });
+    }
+    // check for sufficient balance
+    if (parseFloat(senderAccount.balance) < parseFloat(amount)) {
+        return res.status(400).json({ message: 'Insufficient balance for withdrawal.' });
+    }
 
     const transaction = await Transaction.create({
       account: from_acct_id,
@@ -233,7 +249,6 @@ exports.createWithdrawTransaction = async (req, res) => {
       from_acct_id,
       to_acct_id: null,
       user,
-      transferPin: hashedPin
     });
 
     const updatedBalances = await handleTransactionEffect({
@@ -257,7 +272,7 @@ exports.createWithdrawTransaction = async (req, res) => {
 
 exports.updateTransaction = async (req, res) => {
     const { id } = req.params;
-    const { account, transaction_type, amount, description, from_acct_id, to_acct_id, user_id, transferPin } = req.body;
+    const { account, transaction_type, amount, description, from_acct_id, to_acct_id, user_id } = req.body;
     try {
         const transaction = await Transaction.findByPk(id);
         if (!transaction) {
@@ -270,9 +285,6 @@ exports.updateTransaction = async (req, res) => {
         transaction.from_acct_id = from_acct_id || transaction.from_acct_id;
         transaction.to_acct_id = to_acct_id || transaction.to_acct_id;
         transaction.user_id = user_id || transaction.user_id;
-        if (transferPin) {
-            transaction.transferPin = await bcrypt.hash(transferPin, 4); // Hash the pin before updating
-        }
         await transaction.save();
         res.status(200).json(transaction);
     } catch (error) {
@@ -350,23 +362,27 @@ exports.getTransactionsByStatus = async (req, res) => {
 
 exports.createJointTransaction = async (req, res) => {
   try {
-    const { type, amount, fromAccountId, toAccountId, initiatedBy } = req.body;
+        const { type, amount, fromAccountId, toAccountId, initiatedBy } = req.body;
 
-    if (!['deposit', 'withdrawal', 'transfer'].includes(type)) {
-      return res.status(400).json({ error: 'Invalid transaction type' });
+        if (!['deposit', 'withdrawal', 'transfer'].includes(type)) {
+            return res.status(400).json({ error: 'Invalid transaction type' });
+        }
+        const jointAccount = await JointAccount.findByPk(id)
+        if(!jointAccount){
+            return res.status(404).json({error: 'invaild JointAccount/JointAccount exists'}) 
+        }
+
+        const newBalance = await initiateJointTransaction({
+            type,             // becomes transaction_type
+            amount,
+            fromAccountId,
+            toAccountId,
+            initiatedBy       // becomes user
+        });
+
+        res.status(201).json({ message: `${type} successful`, newBalance });
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
     }
-
-    const newBalance = await initiateJointTransaction({
-      type,             // becomes transaction_type
-      amount,
-      fromAccountId,
-      toAccountId,
-      initiatedBy       // becomes user
-    });
-
-    res.status(201).json({ message: `${type} successful`, newBalance });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
 };
