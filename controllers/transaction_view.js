@@ -367,9 +367,31 @@ exports.createJointTransaction = async (req, res) => {
         if (!['deposit', 'withdrawal', 'transfer'].includes(type)) {
             return res.status(400).json({ error: 'Invalid transaction type' });
         }
-        const jointAccount = await JointAccount.findByPk(id)
+        const jointAccount = await JointAccount.findByPk(fromAccountId || toAccountId)
         if(!jointAccount){
             return res.status(404).json({error: 'invaild JointAccount/JointAccount exists'}) 
+        }
+        // Validate that the user is part of the joint account
+        const isUserPartOfJointAccount = await jointAccount.hasUser(initiatedBy);
+        if (!isUserPartOfJointAccount) {
+            return res.status(403).json({ error: 'User is not part of the joint account' });
+        }
+        // Validate if withdrawal or transfer, check if the user has the correct transfer pin
+        if ((type === 'withdrawal' || type === 'transfer') && !req.body.transferPin) {
+            return res.status(400).json({ error: 'Transfer pin is required for withdrawal or transfer transactions' });
+        }
+
+        const isMatch = await bcrypt.compare(req.body.transferPin, jointAccount.transferPin);
+            if (!isMatch) {
+                return res.status(400).json({ error: 'Invalid transfer pin' });
+            }
+
+        // check for insufficent balance
+        const jointAccountBalance = parseFloat(jointAccount.balance);
+        if (type === 'withdrawal' || type === 'transfer') {
+            if (jointAccountBalance < parseFloat(amount)) {
+                return res.status(400).json({ error: 'Insufficient balance for withdrawal or transfer' });
+            }
         }
 
         const newBalance = await initiateJointTransaction({

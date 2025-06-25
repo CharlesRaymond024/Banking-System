@@ -1,10 +1,12 @@
 const JointAccount = require('../models/JointAccount')
 const User = require('../models/User')
+const bcrypt = require('bcrypt')
+const { Op } = require('sequelize')
 const UserJointAccount = require('../models/UserJointAccount')
 
 exports.createJointAccount = async (req, res) => {
     try{
-    const {accountNumber, accountName, users} = req.body;
+    const {accountNumber, accountName, users, transferPin} = req.body;
 
     const uniqueUsers = [...new Set(users)]
     if (uniqueUsers.length < users.length) {
@@ -14,9 +16,12 @@ exports.createJointAccount = async (req, res) => {
     if (!userExists || userExists.length !== users.length) {
         return res.status(400).json({message: 'One or more users do not exist'});
     }
+    const hashedPin = await bcrypt.hash(transferPin, 4);
+
     const jointAccount = await JointAccount.create({
         accountName,
-        accountNumber
+        accountNumber,
+        transferPin: hashedPin,
     })
 
     if (users && Array.isArray(users)){
@@ -124,5 +129,29 @@ exports.removeUserFromJointAccount = async (req, res) => {
     }catch(error){
         console.error(error)
         res.status(500).json({error: 'Failed to remove user'})
+    }
+}
+
+exports.updateJointAccount = async (req, res) => {
+    try{
+        const {id} = req.params;
+        const {accountName, accountNumber, transferPin} = req.body;
+
+        const jointAccount = await JointAccount.findByPk(id);
+        if (!jointAccount) return res.status(404).json({error: 'JointAccount not found'})
+
+        jointAccount.accountName = accountName || jointAccount.accountName;
+        jointAccount.accountNumber = accountNumber || jointAccount.accountNumber;
+        jointAccount.transferPin = transferPin || jointAccount.transferPin;
+        if (transferPin) {
+                jointAccount.transferPin = await bcrypt.hash(transferPin, 4); // Hash the new transfer pin
+            }
+
+        await jointAccount.save();
+
+        res.status(200).json({message: 'Joint Account updated successfully', jointAccount});
+    }catch(error){
+        console.error(error)
+        res.status(500).json({error: 'Failed to update Joint Account'})
     }
 }

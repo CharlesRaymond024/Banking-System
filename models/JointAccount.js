@@ -29,6 +29,12 @@ const JointAccount = sequelize.define('JointAccount',{
         defaultValue: 'active',
     },
 
+    transferPin:{
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+    },
+
     isSuspended: {
         type: DataTypes.STRING,
         defaultValue: false,
