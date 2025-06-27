@@ -31,6 +31,7 @@ const Notification = sequelize.define('Notification', {
     },
 }, {
   timestamps: true, // Automatically manage createdAt and updatedAt fields
+  tableName: 'Notifications', // Specify the table name
 });
 
 module.exports = Notification;

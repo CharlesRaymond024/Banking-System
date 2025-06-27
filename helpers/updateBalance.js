@@ -2,8 +2,11 @@
 const Account = require('../models/Account');
 
 const updateBalances = async (senderId, receiverId, amount, type) => {
-  const sender = await Account.findOne({ where: { user: senderId } });
-  const receiver = await Account.findOne({ where: { user: receiverId } });
+  console.log('📦 updateBalance called with:', { senderId, receiverId, amount, type });
+
+  const sender = senderId ? await Account.findByPk(senderId) : null;
+  const receiver = receiverId ? await Account.findByPk(receiverId) : null;
+
   // converts amount to number
   amount = parseFloat(amount)
 
@@ -30,7 +33,11 @@ const updateBalances = async (senderId, receiverId, amount, type) => {
     return { receiverBalance: Number(receiver.balance.toFixed(2)) };
   }
 
-  return null;
+  return {
+    senderBalance: sender?.balance,
+    receiverBalance: receiver?.balance
+  };
+
 };
 
 module.exports = updateBalances;

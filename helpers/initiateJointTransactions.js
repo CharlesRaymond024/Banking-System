@@ -1,7 +1,6 @@
 const JointAccount = require('../models/JointAccount'); // Adjust the path as necessary
 const Transaction = require('../models/Transaction'); // Adjust the path as necessary
 const Notification = require('../models/Notification'); // Adjust the path as necessary
-const User = require('../models/User'); // Adjust the path as necessary
 const Account = require('../models/Account'); // Adjust the path as necessary
 
 const initiateJointTransaction = async ({ type, amount, fromAccountId, toAccountId, initiatedBy }) => {
