@@ -17,6 +17,8 @@ const cardRoutes = require('./routes/cardRoute'); // Import your card routes
 const transactionRoutes = require('./routes/transactionRoute'); // Import your transaction routes
 const notificationRoutes = require('./routes/notificationRoute'); // Import your notification routes
 const jointAccountRoutes = require('./routes/jointAccountRoute')
+const authRoute = require('./routes/authRoute'); // Import your auth routes
+const cookieParser = require('cookie-parser')
 
 const app = express();
 
@@ -32,6 +34,8 @@ sequelize.authenticate()
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+app.use(cookieParser())
+
 // use Route
 app.use('/api/v1/bank', bankRoutes); // Use the bank routes
 app.use('/api/v1/user', userRoutes); // Use the user routes
@@ -40,6 +44,7 @@ app.use('/api/v1/card', cardRoutes); // Use the card routes
 app.use('/api/v1/transaction', transactionRoutes); // Use the transaction routes
 app.use('/api/v1/notification', notificationRoutes); // Use the notification routes
 app.use('/api/v1/jointAccount', jointAccountRoutes)
+app.use('/api/v1/auth', authRoute); // Use the auth routes
 
 
 sequelize.sync({ alter: true }) // Use alter: true in development to update the schema
