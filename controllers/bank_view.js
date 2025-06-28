@@ -86,7 +86,7 @@ exports.deleteBank = async (req, res) => {
             return res.status(404).json({ error: 'Bank not found' });
         }
         await bank.destroy();
-        res.status(204).send();
+        res.status(204).json({message: 'Bank deleted successfully'});
     } catch (error) {
         console.error('Error deleting bank:', error);
         res.status(500).json({ error: 'Internal Server Error' });
