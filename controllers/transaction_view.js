@@ -142,6 +142,10 @@ exports.createTransferTransaction = async (req, res) => {
     if (!isMatch) {
         return res.status(400).json({ message: 'Invalid transfer pin.' });
     }
+    // check for transferPin
+    if (!transferPin) {
+      return res.status(400).json({ message: 'Transfer pin is required for transfer transactions.' });
+    }
     // check for sufficient balance
     if (parseFloat(senderAccount.balance) < parseFloat(amount)) {
       return res.status(400).json({ message: 'Insufficient balance for transfer.' });
