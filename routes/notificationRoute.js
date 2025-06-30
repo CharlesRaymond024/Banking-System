@@ -4,6 +4,8 @@ const NotificationController = require('../controllers/notification_view');
 
 // Route to get all notifications
 router.get('/get', NotificationController.getAllNotifications);
+// route to get by id
+router.get('/get/:id', NotificationController.getNotificationById);
 // Route to get notifications for a specific user
 router.get('/:user_id', NotificationController.getUserNotifications);
 // Route to delete a specific notification
