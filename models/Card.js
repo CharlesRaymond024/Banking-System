@@ -40,6 +40,12 @@ const Card = sequelize.define('Card', {
         allowNull: false
     },
 
+    isSuspended: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+
    pin: {
         type: DataTypes.STRING,
         allowNull: false

@@ -16,7 +16,7 @@ exports.login = async (req, res) => {
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
     });
 
     res.status(200).json({

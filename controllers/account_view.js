@@ -36,43 +36,46 @@ exports.getAccountById = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+const generateAccountNumber = () => {
+  return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+};
 
 exports.createAccount = async (req, res) => {
-    const { accountName, accountNumber, accountType, user, balance, currency, transferPin } = req.body;
-    
-    // Check if user exists
-    const existingUser = await User.findByPk(user);
-    if (!existingUser) {
-        return res.status(400).json({ message: 'User does not exist' });
-    }
+  const { accountName, accountType, user, balance, currency, transferPin } = req.body;
 
-    // Check if account with same number exists
-    const existingAccount = await Account.findOne({
-        where: { [Op.or]: [{ accountNumber }] }
+  // ✅ Check if user exists
+  const existingUser = await User.findByPk(user);
+  if (!existingUser) {
+    return res.status(400).json({ message: 'User does not exist' });
+  }
+
+  // 🔁 Generate a unique 10-digit account number
+  let accountNumber;
+  let existingAccount;
+  do {
+    accountNumber = generateAccountNumber();
+    existingAccount = await Account.findOne({ where: { accountNumber } });
+  } while (existingAccount);
+
+  const hashedPin = await bcrypt.hash(transferPin, 4);
+
+  try {
+    const newAccount = await Account.create({
+      accountName,
+      accountNumber, // auto-generated
+      accountType,
+      user,
+      balance,
+      currency,
+      transferPin: hashedPin,
     });
-    
-    if (existingAccount) {
-        return res.status(400).json({ message: 'Account with this number already exists' });
-    }
-    const hashedPin = await bcrypt.hash(transferPin, 4);
 
-    try {
-        const newAccount = await Account.create({
-            accountName,
-            accountNumber,
-            accountType,
-            user,
-            balance,
-            currency,
-            transferPin: hashedPin,
-        });
-        res.status(201).json(newAccount);
-    } catch (error) {
-        console.error('Error creating account:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-}
-
+    res.status(201).json(newAccount);
+  } catch (error) {
+    console.error('Error creating account:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 exports.updateAccount = async (req, res) => {
     const { id } = req.params;
     const { accountName, accountNumber, accountType, user, balance, currency, transferPin } = req.body;

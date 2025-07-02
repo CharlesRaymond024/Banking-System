@@ -1,7 +1,7 @@
 const ROLES_LIST = {
     'SuperAdmin' : 'SuperAdmin',
     'User': 'User',
-    'Customer Support': 'Customer Support',
+    'CustomerCare': 'CustomerCare',
     'Admin': 'Admin',
 }
 

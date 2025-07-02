@@ -81,7 +81,7 @@ exports.getTransactionsByUser = async (req, res) => {
                 },
                 {
                     model: User,
-                    attributes: ['name', 'email'],
+                    attributes: ['firstname','lastname', 'email'],
                 },
             ],
         });

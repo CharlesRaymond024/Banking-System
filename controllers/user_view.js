@@ -103,7 +103,7 @@ exports.deleteUser = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         await user.destroy();
-        res.status(204).send(); // No content
+        res.status(204).json({message: 'User deleted successfully'});
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Internal Server Error' });
