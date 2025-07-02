@@ -8,7 +8,7 @@ exports.getAllCards = async (req, res) => {
         const cards = await Card.findAll({
             include: [{
                 model: Account,
-                attributes: ['accountNumber', 'balance'] // Include account details
+                attributes: ['accountNumber','accountName', 'balance'] // Include account details
             }]
         });
         res.status(200).json(cards);
@@ -24,7 +24,7 @@ exports.getCardById = async (req, res) => {
         const card = await Card.findByPk(id, {
             include: [{
                 model: Account,
-                attributes: ['accountNumber', 'balance'] // Include account details
+                attributes: ['accountNumber','accountName', 'balance'] // Include account details
             }]
         });
         if (!card) {
@@ -63,12 +63,18 @@ exports.createCard = async (req, res) => {
         if (!existingCard) cardExists = false;
     }
 
-  // ensure account has only one card
-    const existingCards = await Card.findAll({ where: { account } });
-    if (existingCards.length >= 1) {
-        return res.status(400).json({ message: 'Account already has a card' });
+  const activeCard = await Card.findOne({
+    where: {
+      account,
+      isSuspended: false // Only allow if existing card is suspended
     }
+  });
 
+  if (activeCard) {
+    return res.status(403).json({
+      message: 'This account already has an active card. Suspend it before creating a new one.'
+    });
+  }
   const cvv = generateCVV();
 
   try {
