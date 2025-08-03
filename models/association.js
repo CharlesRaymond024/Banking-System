@@ -44,6 +44,17 @@ Transaction.belongsTo(User, {
     foreignKey: 'user', // Foreign key in Transaction table
 });
 
+// Optional: if you want to set associations
+Account.hasMany(Transaction, {
+  foreignKey: 'account',
+  sourceKey: 'accountNumber'
+});
+
+Transaction.belongsTo(Account, {
+  foreignKey: 'account',
+  targetKey: 'accountNumber'
+});
+
 Notification.associate = (models) => {
   Notification.belongsTo(models.User, {
     foreignKey: 'user',

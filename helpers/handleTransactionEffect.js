@@ -1,15 +1,16 @@
+// helpers/handleTransactionEffect.js
 const createTransactionNotification = require('./createNotifications');
 const Account = require('../models/Account');
 const updateBalance = require('./updateBalance');
 
-const handleTransactionEffect = async ({ senderId, receiverId, type, amount }) => {
+const handleTransactionEffect = async ({ from_acct_no, to_acct_no, type, amount }) => {
   const notifications = [];
 
-  const balances = await updateBalance(senderId, receiverId, amount, type);
+  const balances = await updateBalance(from_acct_no, to_acct_no, amount, type);
 
   if (type === 'transfer') {
-    const senderAccount = await Account.findByPk(senderId);
-    const receiverAccount = await Account.findByPk(receiverId);
+    const senderAccount = await Account.findOne({ where: { accountNumber: from_acct_no } });
+    const receiverAccount = await Account.findOne({ where: { accountNumber: to_acct_no } });
     const senderUserId = senderAccount?.user;
     const receiverUserId = receiverAccount?.user;
 
@@ -21,7 +22,7 @@ const handleTransactionEffect = async ({ senderId, receiverId, type, amount }) =
   }
 
   if (type === 'deposit') {
-    const receiverAccount = await Account.findByPk(receiverId);
+    const receiverAccount = await Account.findOne({ where: { accountNumber: to_acct_no } });
     const receiverUserId = receiverAccount?.user;
 
     const msg = `₦${amount} has been deposited to your account.`;
@@ -29,7 +30,7 @@ const handleTransactionEffect = async ({ senderId, receiverId, type, amount }) =
   }
 
   if (type === 'withdrawal') {
-    const senderAccount = await Account.findByPk(senderId);
+    const senderAccount = await Account.findOne({ where: { accountNumber: from_acct_no } });
     const senderUserId = senderAccount?.user;
 
     const msg = `₦${amount} has been withdrawn from your account.`;

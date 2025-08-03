@@ -1,14 +1,13 @@
 // helpers/updateBalances.js
 const Account = require('../models/Account');
 
-const updateBalances = async (senderId, receiverId, amount, type) => {
-  console.log('📦 updateBalance called with:', { senderId, receiverId, amount, type });
+const updateBalances = async (from_acct_no, to_acct_no, amount, type) => {
+  console.log('📦 updateBalance called with:', { from_acct_no, to_acct_no, amount, type });
 
-  const sender = senderId ? await Account.findByPk(senderId) : null;
-  const receiver = receiverId ? await Account.findByPk(receiverId) : null;
+  const sender = from_acct_no ? await Account.findOne({ where: { accountNumber: from_acct_no } }) : null;
+  const receiver = to_acct_no ? await Account.findOne({ where: { accountNumber: to_acct_no } }) : null;
 
-  // converts amount to number
-  amount = parseFloat(amount)
+  amount = parseFloat(amount);
 
   if (type === 'transfer' && sender && receiver) {
     sender.balance = parseFloat(sender.balance || 0) - amount;
@@ -37,7 +36,6 @@ const updateBalances = async (senderId, receiverId, amount, type) => {
     senderBalance: sender?.balance,
     receiverBalance: receiver?.balance
   };
-
 };
 
 module.exports = updateBalances;

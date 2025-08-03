@@ -125,68 +125,78 @@ exports.getTransactionsByDateRange = async (req, res) => {
     }
 }
 
+// Create Transfer Transaction using accountNumber
 exports.createTransferTransaction = async (req, res) => {
   try {
-    const { amount, from_acct_id, to_acct_id, user, transferPin } = req.body;
+        const { amount, from_acct_no, to_acct_no, user, transferPin } = req.body;
 
-    const senderAccount = await Account.findByPk(from_acct_id);
-    const receiverAccount = await Account.findByPk(to_acct_id);
-    const userRecord = await User.findByPk(user);
+        // ✅ Validate input
+        if (!from_acct_no || !to_acct_no || !amount || !user || !transferPin) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
 
-    if (!senderAccount || !receiverAccount || !userRecord) {
-      return res.status(404).json({ message: 'Invalid account or user.' });
+        // ✅ Fetch accounts and user
+        const senderAccount = await Account.findOne({ where: { accountNumber: from_acct_no } });
+        const receiverAccount = await Account.findOne({ where: { accountNumber: to_acct_no } });
+        const userRecord = await User.findByPk(user);
+
+        if (!senderAccount || !receiverAccount || !userRecord) {
+            return res.status(404).json({ message: 'Invalid account or user.' });
+        }
+
+        // ✅ Prevent self-transfer
+        if (from_acct_no === to_acct_no) {
+            return res.status(400).json({ message: 'Cannot transfer to the same account.' });
+        }
+
+     // ✅ Validate transfer pin
+        const isMatch = await bcrypt.compare(transferPin, senderAccount.transferPin);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid transfer pin.' });
+        }
+
+        // ✅ Check balance
+        if (parseFloat(senderAccount.balance) < parseFloat(amount)) {
+            return res.status(400).json({ message: 'Insufficient balance.' });
+        }
+
+        // ✅ Create transaction
+        const transaction = await Transaction.create({
+            account: from_acct_no,
+            transaction_type: 'transfer',
+            amount,
+            description: `Transfer to account ${to_acct_no}`,
+            from_acct_no,
+            to_acct_no,
+            user,
+        });
+
+        // ✅ Handle side effects (notification, balances)
+        const updatedBalances = await handleTransactionEffect({
+            from_acct_no,
+            to_acct_no,
+            amount,
+            type: 'transfer',
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Transfer successful',
+            transaction,
+            updatedBalances,
+        });
+    } catch (err) {
+        console.error('💥 Transfer Error:', err);
+        return res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }
-
-    // validate transferPin
-    const isMatch = await bcrypt.compare(transferPin, senderAccount.transferPin);
-    if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid transfer pin.' });
-    }
-    // check for transferPin
-    if (!transferPin) {
-      return res.status(400).json({ message: 'Transfer pin is required for transfer transactions.' });
-    }
-    // check for sufficient balance
-    if (parseFloat(senderAccount.balance) < parseFloat(amount)) {
-      return res.status(400).json({ message: 'Insufficient balance for transfer.' });
-    }
-
-    const transaction = await Transaction.create({
-      account: from_acct_id,
-      transaction_type: 'transfer',
-      amount,
-      description: `Transfer to account ${to_acct_id}`,
-      from_acct_id,
-      to_acct_id,
-      user,
-    });
-
-    const updatedBalances = await handleTransactionEffect({
-      senderId: from_acct_id,
-      receiverId: to_acct_id,
-      amount,
-      type: 'transfer'
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Transfer successful',
-      transaction,
-      updatedBalances
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error', error: err.message });
-  }
 };
 
-
-// controllers/depositController.js
+// Create Deposit Transaction using accountNumber
 exports.createDepositTransaction = async (req, res) => {
   try {
-    const { amount, to_acct_id, user } = req.body;
+    const { amount, to_acct_no, user } = req.body;
 
-    const receiverAccount = await Account.findByPk(to_acct_id);
+    const receiverAccount = await Account.findOne({ where: { accountNumber: to_acct_no } });
     const userRecord = await User.findByPk(user);
 
     if (!receiverAccount || !userRecord) {
@@ -194,85 +204,75 @@ exports.createDepositTransaction = async (req, res) => {
     }
 
     const transaction = await Transaction.create({
-      account: to_acct_id,
+      account: to_acct_no,
       transaction_type: 'deposit',
       amount,
       description: 'Account deposit',
-      from_acct_id: null,
-      to_acct_id,
+      from_acct_no: null,
+      to_acct_no,
       user,
       transferPin: null
     });
 
     const updatedBalances = await handleTransactionEffect({
       senderId: null,
-      receiverId: to_acct_id,
+      to_acct_no,
       amount,
       type: 'deposit'
     });
 
-    res.status(200).json({
-      success: true,
-      message: 'Deposit successful',
-      transaction,
-      updatedBalances
-    });
+    res.status(200).json({ success: true, message: 'Deposit successful', transaction, updatedBalances });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
 
-// controllers/withdrawalController.js
+// Create Withdraw Transaction using accountNumber
 exports.createWithdrawTransaction = async (req, res) => {
   try {
-    const { amount, from_acct_id, user } = req.body;
+    const { amount, from_acct_no, user, transferPin } = req.body;
 
-    const senderAccount = await Account.findByPk(from_acct_id);
+    const senderAccount = await Account.findOne({ where: { accountNumber: from_acct_no } });
     const userRecord = await User.findByPk(user);
 
     if (!senderAccount || !userRecord) {
       return res.status(404).json({ message: 'Invalid account or user.' });
     }
 
-    // validate transferPin
-    const isMatch = await bcrypt.compare(req.body.transferPin, senderAccount.transferPin);
+    const isMatch = await bcrypt.compare(transferPin, senderAccount.transferPin);
     if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid transfer pin.' });
+      return res.status(400).json({ message: 'Invalid transfer pin.' });
     }
-    // check for sufficient balance
+
     if (parseFloat(senderAccount.balance) < parseFloat(amount)) {
-        return res.status(400).json({ message: 'Insufficient balance for withdrawal.' });
+      return res.status(400).json({ message: 'Insufficient balance.' });
     }
 
     const transaction = await Transaction.create({
-      account: from_acct_id,
+      account: from_acct_no,
       transaction_type: 'withdrawal',
       amount,
       description: 'Account withdrawal',
-      from_acct_id,
-      to_acct_id: null,
+      from_acct_no,
+      to_acct_no: null,
       user,
     });
 
     const updatedBalances = await handleTransactionEffect({
-      senderId: from_acct_id,
+      from_acct_no,
       receiverId: null,
       amount,
       type: 'withdrawal'
     });
 
-    res.status(200).json({
-      success: true,
-      message: 'Withdrawal successful',
-      transaction,
-      updatedBalances
-    });
+    res.status(200).json({ success: true, message: 'Withdrawal successful', transaction, updatedBalances });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
+
 
 exports.updateTransaction = async (req, res) => {
     const { id } = req.params;
