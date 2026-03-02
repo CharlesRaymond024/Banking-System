@@ -10,11 +10,11 @@ router.route('/get')
 router.route('/get/:id')
  .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin, roleList.CustomerCare, roleList.User), userController.getUserById); // Route to get a user by ID
 router.route('/create')
- .post(authenticateToken, verifyRoles (roleList.User, roleList.CustomerCare, roleList.SuperAdmin), userController.createUser); // Route to create a new user
+ .post(authenticateToken, verifyRoles (roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), userController.createUser); // Route to create a new user
 router.route('/:id/update')
- .put(authenticateToken, verifyRoles (roleList.User, roleList.CustomerCare, roleList.SuperAdmin), userController.updateUser); // Route to update a user by ID
+ .put(authenticateToken, verifyRoles (roleList.User, roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), userController.updateUser); // Route to update a user by ID
 router.route('/:id/delete')
- .delete(authenticateToken, verifyRoles (roleList.SuperAdmin, roleList.CustomerCare), userController.deleteUser); // Route to delete a user by ID
+ .delete(authenticateToken, verifyRoles (roleList.SuperAdmin, roleList.CustomerCare, roleList.Admin), userController.deleteUser); // Route to delete a user by ID
 
 router.route('/isActive')
  .get(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.Admin, roleList.SuperAdmin), userController.getActiveUsers); // Route to get all active users
