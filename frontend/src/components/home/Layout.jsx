@@ -1,5 +1,4 @@
 import Header from "./Header";
-
 import { Outlet } from "react-router-dom";
 
 const Layout = () => {
@@ -7,11 +6,9 @@ const Layout = () => {
     <>
       <Header />
 
-      {/* pushes content below fixed header */}
-      <main className="pt-20">
+      <div>
         <Outlet />
-      </main>
-     
+      </div>
     </>
   );
 };
