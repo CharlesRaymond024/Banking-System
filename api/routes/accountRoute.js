@@ -13,10 +13,10 @@ router.route('/get/:id')
  .get(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin, roleList.User, roleList.Admin), accountController.getAccountById);
 // Route to create a new account
 router.route('/create')
-.post(authenticateToken, verifyRoles (roleList.User, roleList.CustomerCare, roleList.SuperAdmin, roleList.Admin), accountController.createAccount);
+.post(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin, roleList.Admin), accountController.createAccount);
 // Route to update an account by ID
 router.route('/:id/update')
-.put(authenticateToken, verifyRoles (roleList.User, roleList.CustomerCare, roleList.SuperAdmin), accountController.updateAccount);
+.put(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin), accountController.updateAccount);
 
 // Route to delete an account by ID
 router.route('/:id/delete')
