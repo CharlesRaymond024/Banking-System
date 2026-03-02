@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/images/bank-logo.png";
 
+
 const Header = () => {
   const linkClass = ({ isActive }) =>
     `relative pb-1 transition duration-300
@@ -25,8 +26,11 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
         {/* Logo */}
-        <NavLink to="/">
-          <img src={logo} alt="Bank Logo" className="h-10 w-auto" />
+        <NavLink to="/" className="flex items-center gap-3">
+          <img src={logo} alt="Legion Bank Logo" className="h-10 w-auto" />
+          <h2 className="uppercase text-white font-semibold tracking-wide">
+            Legion Bank
+          </h2>
         </NavLink>
 
         {/* Navigation */}
