@@ -33,14 +33,18 @@ router.route('/get/date/:startDate/:endDate')
   .get(authenticateToken, verifyRoles(roleList.CustomerCare, roleList.SuperAdmin, roleList.User, roleList.Admin), transactionController.getTransactionsByDateRange);
 
 // Route to create a new transaction
-router.post('/transfer', transactionController.createTransferTransaction);
-router.post('/deposit', transactionController.createDepositTransaction);
-router.post('/withdrawal', transactionController.createWithdrawTransaction);
+router.route('/transfer')
+ .post(authenticateToken, verifyRoles(roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin, roleList.User), transactionController.createTransferTransaction);
+router.route('/deposit')
+ .post(authenticateToken, verifyRoles(roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin, roleList.User), transactionController.createDepositTransaction);
+router.route('/withdrawal')
+ .post(authenticateToken, verifyRoles(roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin, roleList.User), transactionController.createWithdrawTransaction);
 // Route to create a joint transaction
-router.post('/joint', transactionController.createJointTransaction);
+router.route('/joint')
+ .post(authenticateToken, verifyRoles(roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), transactionController.createJointTransaction);
 // Route to update a transaction by ID
 router.route('/update/:id')
-.put(authenticateToken, verifyRoles (roleList.SuperAdmin), transactionController.updateTransaction);
+ .put(authenticateToken, verifyRoles (roleList.SuperAdmin), transactionController.updateTransaction);
 // Route to delete a transaction by ID
 router.route('/delete/:id')
   .delete(authenticateToken, verifyRoles(roleList.SuperAdmin), transactionController.deleteTransaction);
