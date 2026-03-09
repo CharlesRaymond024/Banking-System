@@ -41,7 +41,6 @@ const SuperAdminUserDetails = () => {
       >
         ← Back to Users
       </button>
-      
 
       <div className="bg-white shadow-md rounded-lg p-6 max-w-2xl">
         <h2 className="text-2xl font-bold mb-6 text-green-700">User Details</h2>
