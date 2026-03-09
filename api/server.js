@@ -18,6 +18,7 @@ const transactionRoutes = require('./routes/transactionRoute'); // Import your t
 const notificationRoutes = require('./routes/notificationRoute'); // Import your notification routes
 const jointAccountRoutes = require('./routes/jointAccountRoute')
 const authRoute = require('./routes/authRoute'); // Import your auth routes
+const cors = require("cors");
 const cookieParser = require('cookie-parser')
 
 const app = express();
@@ -36,6 +37,12 @@ app.use(express.json());
 
 app.use(cookieParser())
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 // use Route
 app.use('/api/v1/bank', bankRoutes); // Use the bank routes
 app.use('/api/v1/user', userRoutes); // Use the user routes
