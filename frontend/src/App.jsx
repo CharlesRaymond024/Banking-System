@@ -6,6 +6,8 @@ import Login from "./components/auth/Login";
 import RequireAuth from "./components/auth/RequireAuth";
 import SuperAdminDashboardLayout from "./components/SuperAdmin/SuperAdminDashBoarsLayout";
 import SuperAdminDashboard from "./components/SuperAdmin/SuperAdminDashBoard";
+import SuperAdminUsers from "./components/SuperAdmin/SuperAdminUser";
+import SuperAdminUserDetails from "./components/SuperAdmin/SuperrAdminUserDetails";
 import Page404 from "./components/auth/Page404";
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
         <Route path="/superadmin" element={<SuperAdminDashboardLayout />}>
           <Route index element={<SuperAdminDashboard />} />
           {/* Add more nested routes under /superadmin if needed */}
+          <Route path="users" element={<SuperAdminUsers />} />
+          <Route path="users/:id" element={<SuperAdminUserDetails />} />
         </Route>
       </Route>
 
