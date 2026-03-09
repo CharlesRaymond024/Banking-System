@@ -3,6 +3,10 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./components/home/Home";
 import Layout from "./components/home/Layout";
 import Login from "./components/auth/Login";
+import RequireAuth from "./components/auth/RequireAuth";
+import SuperAdminDashboardLayout from "./components/SuperAdmin/SuperAdminDashBoarsLayout";
+import SuperAdminDashboard from "./components/SuperAdmin/SuperAdminDashBoard";
+import Page404 from "./components/auth/Page404";
 
 function App() {
   return (
@@ -11,7 +15,17 @@ function App() {
         <Route index element={<Home />} />
         <Route path="/login" element={<Login />} />
       </Route>
-      
+
+      {/* Super Admin Routes */}
+      <Route element={<RequireAuth role="SuperAdmin" />}>
+        <Route path="/superadmin" element={<SuperAdminDashboardLayout />}>
+          <Route index element={<SuperAdminDashboard />} />
+          {/* Add more nested routes under /superadmin if needed */}
+        </Route>
+      </Route>
+
+      {/* Catch-all route for 404 */}
+      <Route path="*" element={<Page404 />} />
     </Routes>
   );
 }
