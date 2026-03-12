@@ -6,6 +6,7 @@ import {
   MdDashboard,
   MdAdminPanelSettings,
   MdSupportAgent,
+  MdAccountBalance,
 } from "react-icons/md";
 import { FaUsers, FaExchangeAlt } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
@@ -30,6 +31,12 @@ const SuperAdminDashboardLayout = () => {
             <NavLink to="/superadmin" className={navClass}>
               <MdDashboard size={20} />
               Dashboard
+            </NavLink>
+
+            {/* MyAccount tab */}
+            <NavLink to="/superadmin/myaccount" className={navClass}>
+              <MdAccountBalance size={20} />
+              My Account
             </NavLink>
 
             <NavLink to="/superadmin/users" className={navClass}>

@@ -28,7 +28,7 @@ const SuperAdminUserDetails = () => {
       <p className="text-red-500 text-center">Failed to load user details</p>
     );
   }
-  const bankName = Array.isArray(banks)
+  const name = Array.isArray(banks)
     ? banks.find((bank) => bank.id === user?.bank)?.name || "N/A"
     : "N/A";
 
@@ -59,7 +59,7 @@ const SuperAdminUserDetails = () => {
           </p>
 
           <p>
-            <strong>Bank:</strong> {user?.bank} {bankName}
+            <strong>Bank:</strong> {user?.bank} {name}
           </p>
 
           <p>

@@ -4,11 +4,20 @@ import Home from "./components/home/Home";
 import Layout from "./components/home/Layout";
 import Login from "./components/auth/Login";
 import RequireAuth from "./components/auth/RequireAuth";
-import SuperAdminDashboardLayout from "./components/SuperAdmin/SuperAdminDashBoarsLayout";
+import SuperAdminDashboardLayout from "./components/SuperAdmin/SuperAdminDashBoardLayout";
 import SuperAdminDashboard from "./components/SuperAdmin/SuperAdminDashBoard";
 import SuperAdminUsers from "./components/SuperAdmin/SuperAdminUser";
 import SuperAdminUserDetails from "./components/SuperAdmin/SuperrAdminUserDetails";
+import MyAccountLayout from "./components/accounts/MyAccountLayout";
+import MyAccountDashBoard from "./components/accounts/MyAccountDashBoard";
+import AccountDetails from "./components/accounts/AccountDetails";
+import CreateUserandAccount from "./components/SuperAdmin/CreateUserandAccount";
+import UserDashBoard from "./components/user/UserDashBoard";
+import UserLayout from "./components/user/UserLayout";
+import UserTransactions from "./components/user/Transactions";
 import Page404 from "./components/auth/Page404";
+
+
 
 function App() {
   return (
@@ -25,6 +34,25 @@ function App() {
           {/* Add more nested routes under /superadmin if needed */}
           <Route path="users" element={<SuperAdminUsers />} />
           <Route path="users/:id" element={<SuperAdminUserDetails />} />
+          <Route path="CreateUserandAccount" element={<CreateUserandAccount />} />
+        </Route>
+        <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
+          <Route index element={<MyAccountDashBoard />} />
+          <Route path="details" element={<AccountDetails />} />
+        </Route>
+      </Route>
+
+      {/* User Routes */}
+      <Route element={<RequireAuth role="User" />}>
+        <Route path="/user" element={<UserLayout />}>
+          <Route index element={<UserDashBoard />} />
+          {/* Add more nested routes under /user if needed */}
+          <Route path="/user/transactions" element={<UserTransactions />} />
+        </Route>
+
+        <Route path="/user/myaccount" element={<MyAccountLayout />}>
+            <Route index element={<MyAccountDashBoard />} />
+            <Route path="details" element={<AccountDetails />} />
         </Route>
       </Route>
 

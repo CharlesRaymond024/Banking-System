@@ -16,7 +16,7 @@ router.route('/create')
 .post(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin, roleList.Admin), accountController.createAccount);
 // Route to update an account by ID
 router.route('/:id/update')
-.put(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin), accountController.updateAccount);
+.put(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin, roleList.User), accountController.updateAccount);
 
 // Route to delete an account by ID
 router.route('/:id/delete')
@@ -29,6 +29,6 @@ router.route('/get-isSuspended')
 .get(authenticateToken, verifyRoles (roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), accountController.getSuspendedAccounts);
 // Route to get accounts by user ID
 router.route('/get-by-user/:user_id')
-.get(authenticateToken, verifyRoles (roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), accountController.getAccountsByUser);
+.get(authenticateToken, verifyRoles (roleList.Admin, roleList.User, roleList.CustomerCare, roleList.SuperAdmin), accountController.getAccountsByUser);
 
 module.exports = router;

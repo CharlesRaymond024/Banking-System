@@ -56,6 +56,14 @@ const SuperAdminUsers = () => {
       </div>
 
       {/* Users Table */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => navigate("/superadmin/CreateUserandAccount")}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Create User & Account
+        </button>
+      </div>
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-gray-100">
