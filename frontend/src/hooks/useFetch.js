@@ -1,40 +1,39 @@
-import api from "../api/axios";
+import api from "../api/axios"
 import { useState, useEffect } from "react";
 
 export function useFetch(url, token) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const fetchData = async (signal) => {
-    try {
-      setLoading(true);
-      setError(null);
+    const fetchData = async () => {
+        const controller = new AbortController();
+        const signal = controller.signal;
 
-      const response = await api.get(url, {
-        signal,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        try {
+            setLoading(true);
+            setError(null);
 
-      setData(response.data);
-    } catch (err) {
-      if (err.name !== "CanceledError") {
-        setError(err.response?.data?.message || err.message);
-      }
-    } finally {
-      setLoading(false);
+            const response = await api.get(url, {
+                signal: signal,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setData(response.data)
+        } catch (err) {
+            setError(err.message)
+        }finally {
+            setLoading(false)
+        }
+
+        return () => controller.abort();
     }
-  };
+    useEffect(() => {
+      if (!url) return;
+        fetchData();
+    }, [url])
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    fetchData(controller.signal);
-
-    return () => controller.abort();
-  }, [url, token]);
-
-  return { data, loading, error, refetch: () => fetchData() };
+    return { data, loading, error };
 }

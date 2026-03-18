@@ -138,7 +138,7 @@ export default function MyAccountLayout() {
         </aside>
 
         {/* MAIN CONTENT */}
-        <main className="flex-1 p-8 bg-black/90">
+        <main className="flex-1 p-8 bg-white text-black">
           <Outlet />
         </main>
       </div>

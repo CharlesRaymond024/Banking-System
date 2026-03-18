@@ -7,10 +7,10 @@ const verifyRoles = require('../middlewares/verifyRoles')
 
 // Route to get all banks
 router.route('/get')
-.get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.getAllBanks);
+ .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin, roleList.User), bankController.getAllBanks);
 // Route to get a bank by ID
 router.route('/get/:id')
-.get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.getBankById);
+ .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.getBankById);
 router.route('/create')
  .post(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.createBank);
 router.route('/:id/update')
@@ -18,7 +18,6 @@ router.route('/:id/update')
 // Route to delete a bank by ID
 router.route('/:id/delete')
  .delete(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.deleteBank);
-
-
+ 
 // Export the router
 module.exports = router;

@@ -128,9 +128,9 @@ exports.getTransactionsByDateRange = async (req, res) => {
 // Create Transfer Transaction using accountNumber
 exports.createTransferTransaction = async (req, res) => {
   try {
-        const { amount, from_acct_no, to_acct_no, user, transferPin } = req.body;
+        const { amount, from_acct_no, to_acct_no, user, transferPin , description} = req.body;
 
-        if (!from_acct_no || !to_acct_no || !amount || !user || !transferPin) {
+        if (!from_acct_no || !to_acct_no || !amount || !user || !transferPin || !description) {
             return res.status(400).json({ message: 'All fields are required.' });
         }
 
@@ -160,7 +160,7 @@ exports.createTransferTransaction = async (req, res) => {
             account: from_acct_no,
             transaction_type: 'transfer',
             amount,
-            description: `Transfer to account ${to_acct_no}`,
+            description,
             from_acct_no,
             to_acct_no,
             user,

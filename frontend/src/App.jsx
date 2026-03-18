@@ -15,6 +15,7 @@ import CreateUserandAccount from "./components/SuperAdmin/CreateUserandAccount";
 import UserDashBoard from "./components/user/UserDashBoard";
 import UserLayout from "./components/user/UserLayout";
 import UserTransactions from "./components/user/Transactions";
+import Transfer from "./components/accounts/Transfer";
 import Page404 from "./components/auth/Page404";
 
 
@@ -39,6 +40,7 @@ function App() {
         <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
           <Route index element={<MyAccountDashBoard />} />
           <Route path="details" element={<AccountDetails />} />
+          <Route path="transfer" element={<Transfer />} />
         </Route>
       </Route>
 
@@ -53,11 +55,14 @@ function App() {
         <Route path="/user/myaccount" element={<MyAccountLayout />}>
             <Route index element={<MyAccountDashBoard />} />
             <Route path="details" element={<AccountDetails />} />
+            <Route path="transfer" element={<Transfer />} />
         </Route>
       </Route>
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<Page404 />} />
+
+      
     </Routes>
   );
 }

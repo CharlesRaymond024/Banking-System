@@ -1,5 +1,6 @@
 const Account = require('../models/Account');
 const User = require('../models/User');
+const Bank = require('../models/Bank')
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
@@ -169,6 +170,26 @@ exports.getAccountsByUser = async (req, res) => {
         res.status(200).json(accounts);
     } catch (error) {
         console.error('Error fetching accounts by user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+exports.getAccountbyBank = async (req, res) => {
+    const { bank_id} = req.params
+    try{
+        const accounts = await Account.findAll({
+            where: { bank: bank_id},
+            include:[{
+                model: Bank,
+                attributes: ['name']
+            }]
+        })
+        if (accounts === 0){
+            return res.status(404).json({error: 'No Account found for this Bank'})
+        }
+        res.status(200).json(accounts)
+    } catch (error){
+        console.error('Error fetching accounts by bank:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }

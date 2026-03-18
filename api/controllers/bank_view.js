@@ -4,7 +4,9 @@ const { Op } = require('sequelize');
 
 exports.getAllBanks = async (req, res) => {
     try {
-        const banks = await Bank.findAll();
+        const banks = await Bank.findAll({
+            attributes: ["id", "name"],
+        });
         res.status(200).json(banks);
     } catch (error) {
         console.error('Error fetching banks:', error);

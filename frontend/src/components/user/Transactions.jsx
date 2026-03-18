@@ -27,8 +27,6 @@ const UserTransactions = () => {
     );
   }
 
-  
-
   const recentTransactions = transactions?.slice(0, 5);
 
   const getIcon = (type) => {
@@ -115,7 +113,17 @@ const UserTransactions = () => {
           </thead>
 
           <tbody>
-            {transactions && transactions.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="text-center py-8">
+                  <img
+                    src={Spinner}
+                    alt="Loading..."
+                    className="w-10 h-10 mx-auto"
+                  />
+                </td>
+              </tr>
+            ) : transactions && transactions.length > 0 ? (
               transactions.map((tx) => (
                 <tr key={tx.id} className="border-t hover:bg-gray-50">
                   {/* Account */}
@@ -129,9 +137,7 @@ const UserTransactions = () => {
 
                   {/* Amount */}
                   <td
-                    className={`p-4 font-semibold ${getAmountColor(
-                      tx.transaction_type,
-                    )}`}
+                    className={`p-4 font-semibold ${getAmountColor(tx.transaction_type)}`}
                   >
                     ₦{tx.amount?.toLocaleString()}
                   </td>

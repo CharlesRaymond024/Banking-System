@@ -72,6 +72,14 @@ JointAccount.belongsToMany(User,{
     foreignKey: 'jointAccount'
 })
 
+Bank.hasMany(Account, {
+  foreignKey: 'bank'
+});
+
+Account.belongsTo(Bank, {
+  foreignKey: 'bank'
+});
+
 
 
 // Export the models

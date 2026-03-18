@@ -29,6 +29,13 @@ const Account = sequelize.define('Account', {
       key: 'id'
     }
   },
+  bank: {
+    type: DataTypes.INTEGER,
+    references:{
+      model: 'banks',
+      key: 'id'
+    }
+  },
   balance: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,

@@ -31,4 +31,7 @@ router.route('/get-isSuspended')
 router.route('/get-by-user/:user_id')
 .get(authenticateToken, verifyRoles (roleList.Admin, roleList.User, roleList.CustomerCare, roleList.SuperAdmin), accountController.getAccountsByUser);
 
+router.route('/get-by-bank/:bank_id')
+.get(authenticateToken, verifyRoles (roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin, roleList.User), accountController.getAccountbyBank)
+
 module.exports = router;
