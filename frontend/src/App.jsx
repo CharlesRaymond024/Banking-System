@@ -16,7 +16,11 @@ import UserDashBoard from "./components/user/UserDashBoard";
 import UserLayout from "./components/user/UserLayout";
 import UserTransactions from "./components/user/Transactions";
 import Transfer from "./components/accounts/Transfer";
+import AdminDetails from "./components/SuperAdmin/AdminDetails";
+import AdminPage from "./components/SuperAdmin/AdminPage";
+import CreateAdmin from "./components/SuperAdmin/CreateAdmin";
 import Page404 from "./components/auth/Page404";
+import Bank from "./components/SuperAdmin/Banks";
 
 
 
@@ -36,6 +40,10 @@ function App() {
           <Route path="users" element={<SuperAdminUsers />} />
           <Route path="users/:id" element={<SuperAdminUserDetails />} />
           <Route path="CreateUserandAccount" element={<CreateUserandAccount />} />
+          <Route path="/superadmin/admins" element={<AdminPage />} />
+          <Route path="/superadmin/admins/:id" element={<AdminDetails />} />
+          <Route path="/superadmin/create-admin" element={<CreateAdmin />} />
+        <Route path="/superadmin/bank" element={<Bank />} />
         </Route>
         <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
           <Route index element={<MyAccountDashBoard />} />

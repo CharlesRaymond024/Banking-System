@@ -13,6 +13,7 @@ export function useFetch(url, token) {
         try {
             setLoading(true);
             setError(null);
+            setData(null)
 
             const response = await api.get(url, {
                 signal: signal,

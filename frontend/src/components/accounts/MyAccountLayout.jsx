@@ -15,12 +15,7 @@ export default function MyAccountLayout() {
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
   const handleBack = () => {
-    const role = auth?.user?.role;
-
-    if (role === "SuperAdmin") navigate("/superadmin");
-    else if (role === "Admin") navigate("/admin");
-    else if (role === "CustomerCare") navigate("/customercare");
-    else navigate("/user");
+    navigate(-1);
   };
 
   const linkStyle =
