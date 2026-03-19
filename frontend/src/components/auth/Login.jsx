@@ -1,12 +1,12 @@
 import bgImage from "../../assets/images/loginpage-pic.jpg";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { ToastContainer, toast } from "react-toastify";
-import AuthContext from "../../providers/AuthProvider";
+import useAuth from "../../hooks/useAuth";
 
 const Login = () => {
-  const { setAuth } = useContext(AuthContext);
+ const {setAuth, persist, setPersist } = useAuth();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -31,11 +31,6 @@ const Login = () => {
 
     try {
       const res = await api.post("/auth/login", data);
-      console.log("FULL RESPONSE:", res.data);
-      console.log("USER:", res.data.user);
-      console.log("ROLES:", res.data.user.roles);
-      console.log("TYPE OF ROLES:", typeof res.data.user.roles);
-      console.log("FIRST ROLE:", res.data.user.roles);
 
       const mainRole = res.data.user.roles;
 
@@ -43,8 +38,7 @@ const Login = () => {
         ...res.data,
         role: mainRole,
       });
-      console.log("Login response:", res.data);
-      console.log("User main role:", mainRole);
+
 
       // ===== Navigate based on role =====
       switch (mainRole) {
@@ -73,6 +67,10 @@ const Login = () => {
     }
     
   };
+
+  const togglePersist = () => {
+    setPersist((prev) => !prev)
+  }
 
   return (
     <div
@@ -130,7 +128,7 @@ const Login = () => {
           {/* Remember + Forgot */}
           <div className="flex justify-between text-sm">
             <label className="flex items-center gap-2">
-              <input type="checkbox" />
+              <input type="checkbox" checked={persist} onChange={togglePersist} />
               Remember me
             </label>
 

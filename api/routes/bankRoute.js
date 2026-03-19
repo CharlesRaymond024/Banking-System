@@ -12,12 +12,12 @@ router.route('/get')
 router.route('/get/:id')
  .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.getBankById);
 router.route('/create')
- .post(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.createBank);
+ .post(authenticateToken, verifyRoles (roleList.SuperAdmin), bankController.createBank);
 router.route('/:id/update')
- .put(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.updateBank);
+ .put(authenticateToken, verifyRoles (roleList.SuperAdmin), bankController.updateBank);
 // Route to delete a bank by ID
 router.route('/:id/delete')
- .delete(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.deleteBank);
+ .delete(authenticateToken, verifyRoles (roleList.SuperAdmin), bankController.deleteBank);
  
 // Export the router
 module.exports = router;

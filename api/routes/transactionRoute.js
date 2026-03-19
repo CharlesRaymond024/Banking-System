@@ -7,7 +7,7 @@ const roleList = require('../helpers/roleList');
 
 // Route to get all transactions
 router.route('/get')
-  .get(authenticateToken, verifyRoles(roleList.CustomerCare, roleList.SuperAdmin), transactionController.getAllTransactions);
+  .get(authenticateToken, verifyRoles(roleList.CustomerCare, roleList.Admin, roleList.SuperAdmin), transactionController.getAllTransactions);
 
 // Route to get a transaction by ID
 router.route('/get/:id')
@@ -16,6 +16,9 @@ router.route('/get/:id')
 router.route('/get/account/:account_id')
   .get(authenticateToken, verifyRoles(roleList.CustomerCare, roleList.SuperAdmin, roleList.User, roleList.Admin), transactionController.getTransactionsByAccount);
 
+// Route to get transactions by bank ID
+router.route('/get/bank/:bank_id')
+.get(authenticateToken, verifyRoles(roleList.Admin, roleList.SuperAdmin), transactionController.getTransactionsByBank)
 // Route to get transactions by user ID
 router.route('/get/user/:user_id')
   .get(authenticateToken, verifyRoles(roleList.CustomerCare, roleList.SuperAdmin, roleList.User, roleList.Admin), transactionController.getTransactionsByUser);

@@ -167,7 +167,7 @@ exports.getUsersByBank = async (req, res) => {
             where: { bank: bank_id },
             include: [{
                 model: Bank,
-                attributes: ['name', 'logo'] // Include bank details
+                attributes: ['name', 'logo', 'description'] // Include bank details
             }]
         });
         if (users.length === 0) {

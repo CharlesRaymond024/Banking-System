@@ -1,18 +1,14 @@
+// RequireAuth.jsx — use your hook instead of raw useContext
 import { Outlet, Navigate } from "react-router-dom";
-import { useContext } from "react";
-import AuthContext from "../../providers/AuthProvider";
+import useAuth from "../../hooks/useAuth"; // ← cleaner, consistent with rest of app
 
 const RequireAuth = ({ role }) => {
-  const { auth } = useContext(AuthContext);
+  const { auth } = useAuth(); // ← instead of useContext(AuthContext) directly
 
-  console.log("RequireAuth auth:", auth);
-
-  // If user not logged in
-  if (!auth) {
+  if (!auth?.accessToken) {
     return <Navigate to="/login" replace />;
   }
 
-  // If role does not match
   if (auth.role !== role) {
     return <Navigate to="/unauthorized" replace />;
   }
