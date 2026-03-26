@@ -4,6 +4,7 @@ import { useFetch } from "../../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import {
   HiOutlineOfficeBuilding,
+  HiOutlinePencilAlt,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineLocationMarker,
@@ -183,6 +184,14 @@ const Bank = () => {
                   >
                     View Bank Details
                     <HiOutlineArrowRight size={14} />
+                  </button>
+
+                  <button
+                    onClick={() => navigate(`/superadmin/bank/update/${bank.id}`)}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold py-2.5 rounded-xl shadow-sm hover:shadow transition-all duration-200 active:scale-95"
+                  >
+                    Edit Bank
+                    <HiOutlinePencilAlt size={14} />
                   </button>
                 </div>
               </div>

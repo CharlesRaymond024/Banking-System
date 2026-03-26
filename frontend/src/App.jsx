@@ -36,6 +36,7 @@ import NotificationDetails from "./components/notifications/NotificationDetails"
 import UpdateUser from "./components/SuperAdmin/UpdateUser";
 import UpdateUserAccount from "./components/admin/UpdateUserAccount";
 import AdminAccountDetails from "./components/admin/AdminAccountDetails";
+import UpdateBank from "./components/SuperAdmin/UpdateBank";
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
             <Route path="/superadmin/revenue" element={<BankRevenue />} />
             <Route path="/superadmin/revenue/:bank_id" element={<SingleBankRevenue />} />
             <Route path="/superadmin/users/update/:id" element={<UpdateUser />} />
+            <Route path="/superadmin/bank/update/:id" element={<UpdateBank />} />
             
           </Route>
           <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
