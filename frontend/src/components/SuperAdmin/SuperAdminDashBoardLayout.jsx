@@ -9,7 +9,7 @@ import {
   MdAccountBalance,
   MdAccountBalanceWallet,
 } from "react-icons/md";
-import { FaUsers, FaExchangeAlt } from "react-icons/fa";
+import { FaUsers, FaExchangeAlt, FaChartLine } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { IoSettings } from "react-icons/io5";
 import useLogout from "../../hooks/useLogout";
@@ -74,6 +74,11 @@ const SuperAdminDashboardLayout = () => {
             <NavLink to="/superadmin/bank" className={navClass}>
               <MdAccountBalance size={20} />
               Bank
+            </NavLink>
+
+            <NavLink to="/superadmin/revenue" className={navClass}>
+              <FaChartLine size={20} />
+              Revenue
             </NavLink>
 
             <NavLink to="/superadmin/settings" className={navClass}>

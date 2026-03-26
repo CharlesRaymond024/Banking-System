@@ -28,6 +28,11 @@ import AdminUsers from "./components/admin/AdminUsers";
 import AdminUserTransactions from "./components/admin/AdminUserTransaction";
 import AdminTransactions from "./components/admin/AdminTransactions";
 import BanksDetails from "./components/SuperAdmin/BanksDetails";
+import AdminAccount from "./components/admin/AdminAccount";
+import UserNotifications from "./components/notifications/UserNotifications";
+import BankRevenue from "./components/SuperAdmin/BankRevenue";
+import SingleBankRevenue from "./components/SuperAdmin/RevenueDetails";
+import NotificationDetails from "./components/notifications/NotificationDetails";
 
 function App() {
   return (
@@ -54,6 +59,9 @@ function App() {
             <Route path="/superadmin/create-admin" element={<CreateAdmin />} />
             <Route path="/superadmin/bank" element={<Bank />} />
             <Route path="bank/:bank_id" element={<BanksDetails />} />
+            <Route path="/superadmin/revenue" element={<BankRevenue />} />
+            <Route path="/superadmin/revenue/:bank_id" element={<SingleBankRevenue />} />
+            
           </Route>
           <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
             <Route index element={<MyAccountDashBoard />} />
@@ -70,6 +78,8 @@ function App() {
             <Route index element={<UserDashBoard />} />
             {/* Add more nested routes under /user if needed */}
             <Route path="/user/transactions" element={<UserTransactions />} />
+            <Route path="/user/notifications" element={<UserNotifications />} />
+            <Route path="/user/notifications/:notification_id" element={<NotificationDetails />} />
           </Route>
 
           <Route path="/user/myaccount" element={<MyAccountLayout />}>
@@ -86,6 +96,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashBoard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/accounts" element={<AdminAccount />} />
             <Route
               path="users/:userId/transactions"
               element={<AdminUserTransactions />}

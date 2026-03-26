@@ -7,6 +7,7 @@ import { FaHistory } from "react-icons/fa";
 import useLogout from "../../hooks/useLogout";
 import { useNavigate } from "react-router-dom";
 import { IoSettings } from "react-icons/io5";
+import { FaBell } from "react-icons/fa";
 
 const UserLayout = () => {
   const { auth } = useContext(AuthContext);
@@ -73,6 +74,17 @@ const UserLayout = () => {
 
           {/* Right Section */}
           <div className="flex items-center gap-6">
+            {/* 🔔 Notification Button */}
+            <button
+              onClick={() => navigate("/user/notifications")}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-100 transition"
+            >
+              <FaBell className="text-gray-700" size={16} />
+
+              {/* Optional red dot */}
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
             {/* User Info */}
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-sm font-semibold text-gray-700">
@@ -96,7 +108,6 @@ const UserLayout = () => {
             </button>
           </div>
         </header>
-
         {/* Page Content */}
         <div className="flex-1">
           <Outlet />

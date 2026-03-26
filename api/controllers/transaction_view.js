@@ -27,7 +27,7 @@ exports.getTransactionsByBank = async (req, res) => {
       include: [
         {
           model: Account,
-          where: {  bank: bank_id }, // updated here
+          where: { bank: bank_id }, // updated here
         },
       ],
     });
@@ -183,6 +183,13 @@ exports.createTransferTransaction = async (req, res) => {
       return res.status(404).json({ message: "Invalid account or user." });
     }
 
+    if (Number(senderAccount.user) !== Number(user)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: Account does not belong to this user",
+      });
+    }
+
     if (from_acct_no === to_acct_no) {
       return res
         .status(400)
@@ -260,6 +267,13 @@ exports.createDepositTransaction = async (req, res) => {
       return res.status(404).json({ message: "Invalid account or user." });
     }
 
+    if (Number(receiverAccount.user) !== Number(user)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: Account does not belong to this user",
+      });
+    }
+
     const transaction = await Transaction.create({
       account: to_acct_no,
       transaction_type: "deposit",
@@ -283,14 +297,12 @@ exports.createDepositTransaction = async (req, res) => {
       transaction.status = "completed";
       await transaction.save();
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Deposit successful",
-          transaction,
-          updatedBalances,
-        });
+      res.status(200).json({
+        success: true,
+        message: "Deposit successful",
+        transaction,
+        updatedBalances,
+      });
     } catch (error) {
       transaction.status = "failed";
       await transaction.save();
@@ -317,6 +329,12 @@ exports.createWithdrawTransaction = async (req, res) => {
 
     if (!senderAccount || !userRecord) {
       return res.status(404).json({ message: "Invalid account or user." });
+    }
+    if (Number(senderAccount.user) !== Number(user)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: Account does not belong to this user",
+      });
     }
 
     const isMatch = await bcrypt.compare(
@@ -353,14 +371,12 @@ exports.createWithdrawTransaction = async (req, res) => {
       transaction.status = "completed";
       await transaction.save();
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Withdrawal successful",
-          transaction,
-          updatedBalances,
-        });
+      res.status(200).json({
+        success: true,
+        message: "Withdrawal successful",
+        transaction,
+        updatedBalances,
+      });
     } catch (error) {
       transaction.status = "failed";
       await transaction.save();
@@ -505,12 +521,10 @@ exports.createJointTransaction = async (req, res) => {
       (type === "withdrawal" || type === "transfer") &&
       !req.body.transferPin
     ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Transfer pin is required for withdrawal or transfer transactions",
-        });
+      return res.status(400).json({
+        error:
+          "Transfer pin is required for withdrawal or transfer transactions",
+      });
     }
 
     const isMatch = await bcrypt.compare(

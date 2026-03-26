@@ -18,6 +18,12 @@ router.route('/:id/update')
 // Route to delete a bank by ID
 router.route('/:id/delete')
  .delete(authenticateToken, verifyRoles (roleList.SuperAdmin), bankController.deleteBank);
+
+router.route('/get/revenue/bank/:bank_id')
+.get(authenticateToken, verifyRoles (roleList.SuperAdmin, roleList.Admin), bankController.getBankRevenue)
+
+router.route('/get/banks/revenue')
+.get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.getTotalRevenueAllBanks)
  
 // Export the router
 module.exports = router;
