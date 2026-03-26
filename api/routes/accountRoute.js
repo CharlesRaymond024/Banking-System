@@ -16,7 +16,7 @@ router.route('/create')
 .post(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin, roleList.Admin), accountController.createAccount);
 // Route to update an account by ID
 router.route('/:id/update')
-.put(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.SuperAdmin), accountController.updateAccount);
+.put(authenticateToken, verifyRoles (roleList.CustomerCare, roleList.Admin, roleList.SuperAdmin), accountController.updateAccount);
 
 // Route to delete an account by ID
 router.route('/:id/delete')

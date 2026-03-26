@@ -3,11 +3,13 @@ import useAuth from "../../hooks/useAuth";
 import { useState } from "react";
 import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { BsWallet2 } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 const AdminAccount = () => {
   const { auth } = useAuth();
   const token = auth?.accessToken;
   const bankId = auth?.user?.bank;
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -165,12 +167,14 @@ const AdminAccount = () => {
 
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
-                        <button className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow">
+                        <button onClick={() => navigate(`/admin/accounts/get/${acc.id}`)} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow">
                           <FaEye size={11} />
                           View
                         </button>
 
-                        <button className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 active:scale-95 transition-all text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow">
+                        <button
+                        onClick={() => navigate(`/admin/accounts/update/${acc.id}`)}
+                        className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 active:scale-95 transition-all text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow">
                           <FaEdit size={11} />
                           Edit
                         </button>

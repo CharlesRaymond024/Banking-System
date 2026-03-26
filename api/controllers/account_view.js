@@ -28,8 +28,14 @@ exports.getAccountById = async (req, res) => {
       include: [
         {
           model: User,
+          as: "User",
           attributes: ["firstname", "lastname", "email"], // Include user details
         },
+        {
+          model: Bank,
+          as: "Bank",
+          attributes: ["name"], // Include bank details
+        }
       ],
     });
     if (!account) {

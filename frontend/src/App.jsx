@@ -33,6 +33,9 @@ import UserNotifications from "./components/notifications/UserNotifications";
 import BankRevenue from "./components/SuperAdmin/BankRevenue";
 import SingleBankRevenue from "./components/SuperAdmin/RevenueDetails";
 import NotificationDetails from "./components/notifications/NotificationDetails";
+import UpdateUser from "./components/SuperAdmin/UpdateUser";
+import UpdateUserAccount from "./components/admin/UpdateUserAccount";
+import AdminAccountDetails from "./components/admin/AdminAccountDetails";
 
 function App() {
   return (
@@ -61,6 +64,7 @@ function App() {
             <Route path="bank/:bank_id" element={<BanksDetails />} />
             <Route path="/superadmin/revenue" element={<BankRevenue />} />
             <Route path="/superadmin/revenue/:bank_id" element={<SingleBankRevenue />} />
+            <Route path="/superadmin/users/update/:id" element={<UpdateUser />} />
             
           </Route>
           <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
@@ -97,6 +101,8 @@ function App() {
             <Route index element={<AdminDashBoard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/accounts" element={<AdminAccount />} />
+            <Route path="/admin/accounts/get/:id" element={<AdminAccountDetails />} />
+            <Route path="/admin/accounts/update/:id" element={<UpdateUserAccount />} />
             <Route
               path="users/:userId/transactions"
               element={<AdminUserTransactions />}
