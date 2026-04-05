@@ -52,13 +52,18 @@ const generateAccountNumber = () => {
 };
 
 exports.createAccount = async (req, res) => {
-  const { accountName, accountType, user, balance, currency, transferPin } =
+  const { accountName, accountType, user, balance, bank, currency, transferPin } =
     req.body;
 
   // ✅ Check if user exists
   const existingUser = await User.findByPk(user);
   if (!existingUser) {
     return res.status(400).json({ message: "User does not exist" });
+  }
+
+  const existingBank = await Bank.findByPk(bank);
+  if (!existingBank) {
+    return res.status(400).json({ message: "Bank does not exist" });
   }
 
   // 🔁 Generate a unique 10-digit account number
@@ -77,12 +82,14 @@ exports.createAccount = async (req, res) => {
       accountNumber, // auto-generated
       accountType,
       user,
+      bank,
       balance,
       currency,
       transferPin: hashedPin,
     });
-
+    
     res.status(201).json(newAccount);
+    
   } catch (error) {
     console.error("Error creating account:", error);
     res.status(500).json({ error: "Internal Server Error" });

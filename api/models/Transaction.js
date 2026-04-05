@@ -1,67 +1,75 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db/connection');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../db/connection");
 
-const Transaction = sequelize.define('Transaction', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-
-  account: {
-    type: DataTypes.STRING,
-    references: {
-      model: 'accounts',
-      key: 'accountNumber'
+const Transaction = sequelize.define(
+  "Transaction",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    allowNull: false
-  },
 
-  transaction_type: {
-    type: DataTypes.ENUM('deposit', 'withdrawal', 'transfer'),
-    allowNull: false,
-    defaultValue: 'transfer'
-  },
+    account: {
+      type: DataTypes.STRING,
+      references: {
+        model: "accounts",
+        key: "accountNumber",
+      },
+      allowNull: false,
+    },
 
-  amount: {
-    type: DataTypes.DECIMAL(12, 2),
-    allowNull: false
-  },
+    transaction_type: {
+      type: DataTypes.ENUM("deposit", "withdrawal", "transfer"),
+      allowNull: false,
+      defaultValue: "transfer",
+    },
 
-  description: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    validate: {
-      len: [0, 255]
-    }
-  },
+    amount: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: false,
+    },
 
-  status: {
-    type: DataTypes.ENUM('pending', 'completed', 'failed'),
-    defaultValue: 'pending'
-  },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        len: [0, 255],
+      },
+    },
 
-  from_acct_no: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
+    status: {
+      type: DataTypes.ENUM("pending", "completed", "failed"),
+      defaultValue: "pending",
+    },
 
-  to_acct_no: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
+    from_acct_no: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
-  user: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id'
-    }
-  }
-}, {
-  timestamps: true,
-  tableName: 'transactions'
-});
+    to_acct_no: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    user: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
+    },
+    reference: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    timestamps: true,
+    tableName: "transactions",
+  },
+);
 
 module.exports = Transaction;

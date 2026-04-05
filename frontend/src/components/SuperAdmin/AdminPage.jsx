@@ -21,17 +21,20 @@ export default function AdminPage() {
 
   const accessToken = auth?.accessToken;
 
-  const { data: users, loading, error } = useFetch("/user/get", accessToken);
+  // ✅ FIX: Fetch ONLY admins from backend
+  const {
+    data: admins,
+    loading,
+    error,
+  } = useFetch("/user/get-by-role/Admin", accessToken);
 
-  // ✅ Always return array
-  const admins = Array.isArray(users)
-    ? users.filter((user) => user.roles === "Admin")
-    : [];
+  // Ensure it's always an array
+  const adminList = Array.isArray(admins) ? admins : [];
 
-  // Generate mock activity data
-  const activityData = admins.map((admin) => ({
+  // Mock activity data
+  const activityData = adminList.map((admin) => ({
     name: `${admin.firstname}`,
-    actions: Math.floor(Math.random() * 50) + 1, // replace with real activity counts from backend if available
+    actions: Math.floor(Math.random() * 50) + 1,
   }));
 
   return (
@@ -54,7 +57,7 @@ export default function AdminPage() {
           Admin Activity
         </h2>
 
-        {admins.length === 0 ? (
+        {adminList.length === 0 ? (
           <p className="text-gray-500 text-center">No activity to display</p>
         ) : (
           <ResponsiveContainer width="100%" height={250}>
@@ -75,19 +78,15 @@ export default function AdminPage() {
       {/* CONTENT */}
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          <img
-            src={Spinner}
-            alt="Loading..."
-            className="w-10 h-10 animate-spin"
-          />
+          <img src={Spinner} alt="Loading..." className="w-10 h-10" />
         </div>
       ) : error ? (
         <p className="text-red-500 text-center">Failed to load admins</p>
-      ) : admins.length === 0 ? (
+      ) : adminList.length === 0 ? (
         <p className="text-center text-gray-500">No admins found</p>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {admins.map((admin) => (
+          {adminList.map((admin) => (
             <div
               key={admin.id}
               onClick={() => navigate(`/superadmin/admins/${admin.id}`)}

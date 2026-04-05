@@ -4,19 +4,50 @@ const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
 exports.getAllUsers = async (req, res) => {
-    try {
-        const users = await User.findAll({
-            include: [{
-                model: Bank,
-                attributes: ['name', 'logo'] // Include bank details
-            }]
-        });
-        res.status(200).json(users);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    // ✅ Get query params
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const { role } = req.query;
+
+    const offset = (page - 1) * limit;
+
+    // ✅ Filter condition
+    const where = {};
+    if (role) {
+      where.roles = role;
     }
-}
+
+    // ✅ Total count (with filter)
+    const totalUsers = await User.count({ where });
+
+    // ✅ Fetch users (with filter + pagination)
+    const users = await User.findAll({
+      where,
+      include: [
+        {
+          model: Bank,
+          attributes: ["name", "logo"],
+        },
+      ],
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.status(200).json({
+      users,
+      currentPage: page,
+      totalPages,
+      totalUsers,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 exports.getUserById = async (req, res) => {
     const { id } = req.params;

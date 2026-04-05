@@ -7,7 +7,7 @@ const verifyRoles = require('../middlewares/verifyRoles')
 
 // Route to get all banks
 router.route('/get')
- .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin, roleList.User), bankController.getAllBanks);
+ .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin, roleList.User, roleList.CustomerCare), bankController.getAllBanks);
 // Route to get a bank by ID
 router.route('/get/:id')
  .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin), bankController.getBankById);

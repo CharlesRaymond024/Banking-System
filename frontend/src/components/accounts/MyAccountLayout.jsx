@@ -10,10 +10,20 @@ import {
 } from "react-icons/fa";
 import { useContext } from "react";
 import AuthContext from "../../providers/AuthProvider";
+import { useFetch } from "../../hooks/useFetch";
 
 export default function MyAccountLayout() {
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const accessToken = auth?.accessToken;
+
+  // ✅ FETCH ACCOUNT USING USER ID (THIS WAS MISSING)
+  const { data: account, loading } = useFetch(
+    auth?.user?.id ? `/account/get-by-user/${auth.user.id}` : null,
+    accessToken,
+  );
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -27,7 +37,6 @@ export default function MyAccountLayout() {
     <div className="flex flex-col min-h-screen bg-black text-white">
       {/* HEADER */}
       <header className="bg-black/70 backdrop-blur-md border-b border-gray-800 px-8 py-4 flex justify-between items-center shadow-md">
-        {/* Left Section */}
         <div className="flex items-center gap-4">
           <button
             onClick={handleBack}
@@ -42,19 +51,15 @@ export default function MyAccountLayout() {
           </h1>
         </div>
 
-        {/* Right Section */}
-        {/* Right Section */}
         <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div className="w-10 h-10 bg-green-500 text-white flex items-center justify-center rounded-full font-bold shadow-md uppercase">
+          <div className="w-10 h-10 bg-green-500 text-white flex items-center justify-center rounded-full font-bold uppercase">
             {auth?.user?.firstname?.charAt(0)}
           </div>
 
-          {/* User Info */}
           <div className="flex flex-col leading-tight">
             <span className="text-xs text-gray-400">Welcome</span>
             <span className="text-sm font-semibold text-white">
-              {auth?.user?.accountName || auth?.user?.firstname}
+              {auth?.user?.firstname}
             </span>
           </div>
         </div>
@@ -89,8 +94,9 @@ export default function MyAccountLayout() {
               Transfer
             </NavLink>
 
+            {/* ✅ CLEAN ROUTE (NO PARAMS) */}
             <NavLink
-              to="transactions"
+              to="transactions/history"
               className={({ isActive }) =>
                 `${linkStyle} ${isActive ? activeStyle : "hover:bg-gray-800"}`
               }
@@ -119,7 +125,6 @@ export default function MyAccountLayout() {
               Report
             </NavLink>
 
-            {/* USER PROFILE TAB */}
             <NavLink
               to="profile"
               className={({ isActive }) =>
@@ -134,7 +139,8 @@ export default function MyAccountLayout() {
 
         {/* MAIN CONTENT */}
         <main className="flex-1 p-8 bg-white text-black">
-          <Outlet />
+          {/* ✅ PASS ACCOUNT TO CHILD ROUTES */}
+          <Outlet context={{ account, loading }} />
         </main>
       </div>
 

@@ -37,6 +37,16 @@ import UpdateUser from "./components/SuperAdmin/UpdateUser";
 import UpdateUserAccount from "./components/admin/UpdateUserAccount";
 import AdminAccountDetails from "./components/admin/AdminAccountDetails";
 import UpdateBank from "./components/SuperAdmin/UpdateBank";
+import Unauthorized from "./components/auth/UnAuthorized";
+import CustomerCare from "./components/SuperAdmin/CustomerCare";
+import CreateCustomerCare from "./components/SuperAdmin/CreateCustomerCare";
+import CustomerCareDetails from "./components/SuperAdmin/CustomerCareDetails";
+import UpdateCustomerCare from "./components/SuperAdmin/UpdateCustomerCare";
+import AllTransactions from "./components/SuperAdmin/SuperAdminTransaction";
+import TransactionHistory from "./components/accounts/TransactionHistory";
+import TransactionDetails from "./components/accounts/TransactionDetails";
+import CustomerCareLayout from "./components/CustomerCare/CustomerCareLyout";
+import CustomerCareDashBoard from "./components/CustomerCare/CustomerCareDashBoard";
 
 function App() {
   return (
@@ -62,16 +72,49 @@ function App() {
             <Route path="/superadmin/admins/:id" element={<AdminDetails />} />
             <Route path="/superadmin/create-admin" element={<CreateAdmin />} />
             <Route path="/superadmin/bank" element={<Bank />} />
+            <Route path="/superadmin/support" element={<CustomerCare />} />
+            <Route
+              path="/superadmin/create-customer-care"
+              element={<CreateCustomerCare />}
+            />
+            <Route
+              path="/superadmin/customer-care/:id"
+              element={<CustomerCareDetails />}
+            />
+            <Route
+              path="/superadmin/customer-care/:id/update"
+              element={<UpdateCustomerCare />}
+            />
             <Route path="bank/:bank_id" element={<BanksDetails />} />
             <Route path="/superadmin/revenue" element={<BankRevenue />} />
-            <Route path="/superadmin/revenue/:bank_id" element={<SingleBankRevenue />} />
-            <Route path="/superadmin/users/update/:id" element={<UpdateUser />} />
-            <Route path="/superadmin/bank/update/:id" element={<UpdateBank />} />
-            
+            <Route
+              path="/superadmin/revenue/:bank_id"
+              element={<SingleBankRevenue />}
+            />
+            <Route
+              path="/superadmin/users/update/:id"
+              element={<UpdateUser />}
+            />
+            <Route
+              path="/superadmin/bank/update/:id"
+              element={<UpdateBank />}
+            />
+            <Route
+              path="/superadmin/transactions"
+              element={<AllTransactions />}
+            />
           </Route>
           <Route path="/superadmin/myaccount" element={<MyAccountLayout />}>
             <Route index element={<MyAccountDashBoard />} />
             <Route path="details" element={<AccountDetails />} />
+            <Route
+              path="transactions/history"
+              element={<TransactionHistory />}
+            />
+            <Route
+              path="transactions/history/:id"
+              element={<TransactionDetails />}
+            />
             <Route path="transfer" element={<Transfer />} />
           </Route>
         </Route>
@@ -85,12 +128,23 @@ function App() {
             {/* Add more nested routes under /user if needed */}
             <Route path="/user/transactions" element={<UserTransactions />} />
             <Route path="/user/notifications" element={<UserNotifications />} />
-            <Route path="/user/notifications/:notification_id" element={<NotificationDetails />} />
+            <Route
+              path="/user/notifications/:notification_id"
+              element={<NotificationDetails />}
+            />
           </Route>
 
           <Route path="/user/myaccount" element={<MyAccountLayout />}>
             <Route index element={<MyAccountDashBoard />} />
             <Route path="details" element={<AccountDetails />} />
+            <Route
+              path="transactions/history"
+              element={<TransactionHistory />}
+            />
+            <Route
+              path="transactions/history/:id"
+              element={<TransactionDetails />}
+            />
             <Route path="transfer" element={<Transfer />} />
           </Route>
         </Route>
@@ -103,8 +157,14 @@ function App() {
             <Route index element={<AdminDashBoard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/accounts" element={<AdminAccount />} />
-            <Route path="/admin/accounts/get/:id" element={<AdminAccountDetails />} />
-            <Route path="/admin/accounts/update/:id" element={<UpdateUserAccount />} />
+            <Route
+              path="/admin/accounts/get/:id"
+              element={<AdminAccountDetails />}
+            />
+            <Route
+              path="/admin/accounts/update/:id"
+              element={<UpdateUserAccount />}
+            />
             <Route
               path="users/:userId/transactions"
               element={<AdminUserTransactions />}
@@ -115,7 +175,18 @@ function App() {
         </Route>
       </Route>
 
+      <Route element={<PersistLogin />}>
+        <Route path="/customercare" element={<CustomerCareLayout />}>
+          <Route index element={<CustomerCareDashBoard />} />
+          {/* <Route path="users" element={<CustomerCareUsers />} />
+          <Route path="banks" element={<CustomerCareBanks />} />
+          <Route path="reports" element={<CustomerCareReports />} />
+          <Route path="settings" element={<CustomerCareSettings />} /> */}
+        </Route>
+      </Route>
+
       {/* Catch-all route for 404 */}
+      <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<Page404 />} />
     </Routes>
   );

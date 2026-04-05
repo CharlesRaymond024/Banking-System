@@ -67,11 +67,11 @@ export default function CreateUserAndAccount() {
       // CREATE USER
       const newUser = await createUser(userData);
       setCreatedUser(newUser);
-
       // CREATE ACCOUNT
       const accountRes = await createAccount({
         ...accountData,
         user: newUser.id,
+        bank: Number(userData.bank),
       });
 
       // store generated account number

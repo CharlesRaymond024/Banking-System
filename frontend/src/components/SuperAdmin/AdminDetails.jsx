@@ -94,14 +94,14 @@ export default function AdminDetails() {
           {/* BUTTONS */}
           <div className="flex justify-end gap-4 mt-6">
             <button
-              onClick={() => navigate(`/superadmin/admins/edit/${admin.id}`)}
+              onClick={() => navigate(`/superadmin/users/update/${admin.id}`)}
               className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
               Edit
             </button>
 
             <button
-              onClick={() => console.log("Delete admin:", admin.id)}
+              // onClick={() => console.log("Delete admin:", admin.id)}
               className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
               Delete
@@ -112,3 +112,5 @@ export default function AdminDetails() {
     </div>
   );
 }
+
+// 

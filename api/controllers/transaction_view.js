@@ -7,15 +7,35 @@ const updateBalances = require("../helpers/updateBalance");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const JointAccount = require("../models/JointAccount");
+const generateTransactionReference = require("../helpers/generateTransactionRef");
+const sequelize = require("../db/connection");
 
 exports.getAllTransactions = async (req, res) => {
   try {
-    const transactions = await Transaction.findAll({ include: [Account] });
-    res.status(200).json({ transactions });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows: transactions } = await Transaction.findAndCountAll({
+      include: [Account],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(200).json({
+      transactions,
+      currentPage: page,
+      totalPages,
+      totalTransactions: count,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch transactions", error: error.message });
+    res.status(500).json({
+      message: "Failed to fetch transactions",
+      error: error.message,
+    });
   }
 };
 
@@ -68,29 +88,41 @@ exports.getTransactionById = async (req, res) => {
 
 exports.getTransactionsByAccount = async (req, res) => {
   const { account_id } = req.params;
+
   try {
-    const transactions = await Transaction.findAll({
-      where: { account: account_id },
-      include: [
-        {
-          model: Account,
-          attributes: ["accountNumber", "balance"],
-        },
-        {
-          model: User,
-          attributes: ["name", "email"],
-        },
-      ],
+    // ✅ Step 1: find account using ID
+    const account = await Account.findOne({
+      where: { id: account_id },
     });
-    if (transactions.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No transactions found for this account" });
+
+    if (!account) {
+      return res.status(404).json({
+        error: "Account not found",
+      });
     }
-    res.status(200).json(transactions);
+
+    // ✅ Step 2: use accountNumber from DB
+    const transactions = await Transaction.findAll({
+      where: {
+        account: account.accountNumber, // 🔥 THIS IS THE KEY FIX
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!transactions.length) {
+      return res.status(404).json({
+        error: "No transactions found for this account",
+      });
+    }
+
+    return res.status(200).json({
+      transactions,
+    });
   } catch (error) {
-    console.error("Error fetching transactions by account:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+    return res.status(500).json({
+      error: "Server error",
+    });
   }
 };
 
@@ -138,7 +170,7 @@ exports.getTransactionsByDateRange = async (req, res) => {
         },
         {
           model: User,
-          attributes: ["name", "email"],
+          attributes: ["firstname", "lastname", "email"],
         },
       ],
     });
@@ -156,6 +188,8 @@ exports.getTransactionsByDateRange = async (req, res) => {
 
 // Create Transfer Transaction using accountNumber
 exports.createTransferTransaction = async (req, res) => {
+  let t;
+
   try {
     const { amount, from_acct_no, to_acct_no, user, transferPin, description } =
       req.body;
@@ -174,9 +208,11 @@ exports.createTransferTransaction = async (req, res) => {
     const senderAccount = await Account.findOne({
       where: { accountNumber: from_acct_no },
     });
+
     const receiverAccount = await Account.findOne({
       where: { accountNumber: to_acct_no },
     });
+
     const userRecord = await User.findByPk(user);
 
     if (!senderAccount || !receiverAccount || !userRecord) {
@@ -186,20 +222,21 @@ exports.createTransferTransaction = async (req, res) => {
     if (Number(senderAccount.user) !== Number(user)) {
       return res.status(403).json({
         success: false,
-        message: "Unauthorized: Account does not belong to this user",
+        message: "Unauthorized",
       });
     }
 
     if (from_acct_no === to_acct_no) {
-      return res
-        .status(400)
-        .json({ message: "Cannot transfer to the same account." });
+      return res.status(400).json({
+        message: "Cannot transfer to the same account.",
+      });
     }
 
     const isMatch = await bcrypt.compare(
       transferPin,
       senderAccount.transferPin,
     );
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid transfer pin." });
     }
@@ -208,48 +245,80 @@ exports.createTransferTransaction = async (req, res) => {
       return res.status(400).json({ message: "Insufficient balance." });
     }
 
-    // ✅ status added
-    const transaction = await Transaction.create({
-      account: from_acct_no,
-      transaction_type: "transfer",
-      amount,
-      description,
-      from_acct_no,
-      to_acct_no,
-      user,
-      status: "pending",
-    });
+    // 🔥 Start transaction
+    t = await sequelize.transaction();
 
-    try {
-      const updatedBalances = await handleTransactionEffect({
+    const reference = generateTransactionReference();
+
+    // ✅ Create transactions
+    const senderTransaction = await Transaction.create(
+      {
+        account: from_acct_no,
+        transaction_type: "transfer",
+        amount,
+        description,
+        from_acct_no,
+        to_acct_no,
+        user,
+        status: "pending",
+        reference,
+      },
+      { transaction: t },
+    );
+
+    const receiverTransaction = await Transaction.create(
+      {
+        account: to_acct_no,
+        transaction_type: "transfer",
+        amount,
+        description,
+        from_acct_no,
+        to_acct_no,
+        user: receiverAccount.user,
+        status: "pending",
+        reference,
+      },
+      { transaction: t },
+    );
+
+    const updatedBalances = await handleTransactionEffect(
+      {
         from_acct_no,
         to_acct_no,
         amount,
         type: "transfer",
-      });
+      },
+      t,
+    );
 
-      // ✅ mark completed
-      transaction.status = "completed";
-      await transaction.save();
+    senderTransaction.status = "completed";
+    receiverTransaction.status = "completed";
 
-      return res.status(200).json({
-        success: true,
-        message: "Transfer successful",
-        transaction,
-        updatedBalances,
-      });
-    } catch (error) {
-      // ❌ mark failed
-      transaction.status = "failed";
-      await transaction.save();
+    await senderTransaction.save({ transaction: t });
+    await receiverTransaction.save({ transaction: t });
+    // ✅ Commit everything
+    await t.commit();
 
-      throw error;
-    }
+    return res.status(200).json({
+      success: true,
+      message: "Transfer successful",
+      reference,
+      transactions: {
+        debit: senderTransaction,
+        credit: receiverTransaction,
+      },
+      updatedBalances,
+    });
   } catch (err) {
     console.error("💥 Transfer Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Server error", error: err.message });
+
+    if (t) await t.rollback(); // ✅ safe rollback
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
 
@@ -450,7 +519,7 @@ exports.getTransactionsByType = async (req, res) => {
         },
         {
           model: User,
-          attributes: ["name", "email"],
+          attributes: ["firstname","lastname", "email"],
         },
       ],
     });
@@ -478,7 +547,7 @@ exports.getTransactionsByStatus = async (req, res) => {
         },
         {
           model: User,
-          attributes: ["name", "email"],
+          attributes: ["firstname","lastname", "email"],
         },
       ],
     });
