@@ -1,101 +1,232 @@
 import { useFetch } from "../../hooks/useFetch";
 import useAuth from "../../hooks/useAuth";
-import { FaBell } from "react-icons/fa";
-import { useMemo } from "react";
-import { FaEye } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import useUpdate from "../../hooks/useUpdate";
+import {
+  FaBell,
+  FaEye,
+  FaCheck,
+  FaEnvelopeOpen,
+  FaArrowLeft,
+} from "react-icons/fa";
+import { useMemo, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const UserNotifications = () => {
   const { auth } = useAuth();
   const token = auth?.accessToken;
   const userId = auth?.user?.id;
 
+  const navigate = useNavigate();
+
+  const [filter, setFilter] = useState("all");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const [selectedId, setSelectedId] = useState(null);
+  const [actionType, setActionType] = useState(null);
+
+  // 🔄 Fetch
   const {
     data: notificationsData,
     loading,
     error,
-  } = useFetch(userId ? `/notification/get-by-user/${userId}` : null, token);
+  } = useFetch(
+    userId
+      ? filter === "unread"
+        ? `/notification/unread/all`
+        : `/notification/get-by-user/${userId}`
+      : null,
+    token,
+    refreshKey,
+  );
 
   const notifications = useMemo(
     () => notificationsData?.data?.notifications || [],
     [notificationsData],
   );
 
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications],
+  );
+
+  const refresh = () => setRefreshKey((prev) => prev + 1);
+
+  // ✅ Hooks
+  const { updateData: markAllUpdate } = useUpdate(
+    userId ? `/notification/mark-all-as-read/${userId}` : null,
+    token,
+  );
+
+  const dynamicUrl =
+    selectedId && actionType === "read"
+      ? `/notification/mark-as-read/${selectedId}`
+      : selectedId && actionType === "unread"
+        ? `/notification/mark-as-unread/${selectedId}`
+        : null;
+
+  const { updateData: updateSingle } = useUpdate(dynamicUrl, token);
+
+  // Actions
+  const markAllAsRead = async () => {
+    try {
+      await markAllUpdate();
+      toast.success("All notifications marked as read");
+      refresh();
+    } catch {
+      toast.error("Failed to mark all as read");
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      setSelectedId(id);
+      setActionType("read");
+
+      await updateSingle();
+      toast.success("Marked as read");
+      refresh();
+    } catch {
+      toast.error("Failed");
+    }
+  };
+
+  const handleMarkAsUnread = async (id) => {
+    try {
+      setSelectedId(id);
+      setActionType("unread");
+
+      await updateSingle();
+      toast.info("Marked as unread");
+      refresh();
+    } catch {
+      toast.error("Failed");
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          All your recent activities and updates
-        </p>
-      </div>
+      
 
       {/* Loading */}
       {loading && (
         <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 text-sm">
-          Failed to load notifications.
-        </div>
+        <div className="text-red-500 text-sm">Failed to load notifications</div>
       )}
 
-      {/* Content */}
+      {/* List */}
       {!loading && !error && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y">
-          {notifications.length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
-              <FaBell size={40} className="mx-auto mb-3 opacity-20" />
-              No notifications yet
-            </div>
-          ) : (
-            notifications.map((note, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-4 px-5 py-4 hover:bg-gray-50 transition"
+        <div className="max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="text-sm text-slate-400 hover:text-white flex items-center gap-2"
+            >
+              <FaArrowLeft size={12} />
+              Back
+            </button>
+
+            <h2 className="text-lg font-semibold text-slate-200">
+              Notifications
+            </h2>
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-2 mb-5">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-3 py-1 text-xs rounded-lg ${
+                filter === "all"
+                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                  : "bg-slate-800 text-slate-400"
+              }`}
+            >
+              All
+            </button>
+
+            <button
+              onClick={() => setFilter("unread")}
+              className={`px-3 py-1 text-xs rounded-lg ${
+                filter === "unread"
+                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                  : "bg-slate-800 text-slate-400"
+              }`}
+            >
+              Unread
+            </button>
+
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="ml-auto text-xs text-amber-400 hover:underline flex items-center gap-1"
               >
-                {/* Icon */}
-                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                  <FaBell size={14} />
-                </div>
+                <FaCheck size={10} />
+                Mark all
+              </button>
+            )}
+          </div>
 
-                {/* Content */}
-                <div className="flex-1">
-                  <p className="text-sm text-gray-700 font-medium">
-                    {note.description}
-                  </p>
+          {/* List */}
+          <div className="space-y-3">
+            {notifications.length === 0 ? (
+              <div className="text-center py-16 text-slate-500">
+                <FaBell size={28} className="mx-auto mb-2 opacity-30" />
+                No notifications
+              </div>
+            ) : (
+              notifications.map((note) => (
+                <div
+                  key={note.id}
+                  className={`p-4 rounded-xl border backdrop-blur-md transition ${
+                    !note.read
+                      ? "bg-amber-500/10 border-amber-500/20"
+                      : "bg-slate-800/40 border-slate-700/50"
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm text-slate-200 font-medium">
+                      {note.description}
+                    </p>
 
-                  {/* Type */}
-                  {note.type && (
-                    <span className="inline-block mt-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded capitalize">
-                      {note.type}
-                    </span>
-                  )}
+                    {!note.read ? (
+                      <button
+                        onClick={() => handleMarkAsRead(note.id)}
+                        className="text-amber-400 text-xs hover:underline"
+                      >
+                        Read
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleMarkAsUnread(note.id)}
+                        className="text-slate-400 text-xs hover:text-white"
+                      >
+                        Unread
+                      </button>
+                    )}
+                  </div>
 
-                  {/* Time */}
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {new Date(note.time).toLocaleString()}
                   </p>
 
-                  {/* View Button Centered */}
-                  <div className="flex justify-center mt-3">
-                    <NavLink
-                      to={`/user/notifications/${note.id}`}
-                      className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow"
-                    >
-                      <FaEye size={11} />
-                      View
-                    </NavLink>
-                  </div>
+                  <NavLink
+                    to={`/user/notifications/${note.id}`}
+                    className="mt-3 inline-flex items-center gap-1 text-xs text-amber-400 hover:underline"
+                  >
+                    <FaEye size={10} />
+                    View details
+                  </NavLink>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

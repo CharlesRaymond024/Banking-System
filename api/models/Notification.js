@@ -29,6 +29,10 @@ const Notification = sequelize.define('Notification', {
         allowNull: false,
         defaultValue: DataTypes.NOW, // Automatically set to current date and time
     },
+    isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false, // Default value for isRead
+    },
 }, {
   timestamps: true, // Automatically manage createdAt and updatedAt fields
   tableName: 'Notifications', // Specify the table name

@@ -163,35 +163,37 @@ const Transfer = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10 px-4">
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-8">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-green-800">Transfer Money</h2>
-          <p className="text-gray-500 text-sm mt-1">
-            Send money securely to another account
-          </p>
-        </div>
+    <div className="max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-slate-200">Transfer Money</h2>
+        <p className="text-slate-500 text-sm mt-1">
+          Send money securely to another account
+        </p>
+      </div>
 
+      {/* Card */}
+      <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6 shadow-lg">
         {/* Sender */}
-        <div className="bg-green-50 border border-green-100 rounded-xl p-5 mb-6">
-          <p className="text-sm text-gray-500">From Account</p>
-          <p className="text-lg font-semibold text-gray-800">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mb-6">
+          <p className="text-xs text-slate-400">From Account</p>
+          <p className="text-lg font-semibold text-slate-200">
             {formData.from_acct_no}
           </p>
 
           {accountData?.[0]?.balance && (
-            <p className="text-sm text-green-600 mt-1 font-medium">
+            <p className="text-xs text-emerald-400 mt-1 font-medium">
               Balance: ₦{Number(accountData[0].balance).toLocaleString()}
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Bank Select */}
           <select
             value={selectedBank}
             onChange={(e) => setSelectedBank(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg"
+            className="w-full p-3 rounded-lg bg-slate-900/60 border border-slate-700 text-slate-200 focus:outline-none focus:border-emerald-500"
             required
           >
             <option value="">-- Select Bank --</option>
@@ -202,6 +204,7 @@ const Transfer = () => {
             ))}
           </select>
 
+          {/* Account Input */}
           <div className="w-full">
             <div className="relative">
               <input
@@ -212,37 +215,43 @@ const Transfer = () => {
                 disabled={checking}
                 required
                 placeholder="Enter recipient account number"
-                className={`w-full p-3 pr-32 border rounded-lg outline-none transition
-        ${error ? "border-red-500" : isValidAccount ? "border-green-500" : "border-gray-300"}
-        ${checking ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
-      `}
+                className={`w-full p-3 pr-32 rounded-lg outline-none transition bg-slate-900/60 text-slate-200
+              ${
+                error
+                  ? "border border-red-500"
+                  : isValidAccount
+                    ? "border border-emerald-500"
+                    : "border border-slate-700"
+              }
+              ${checking ? "opacity-60 cursor-not-allowed" : ""}
+              `}
               />
 
-              {/* Right side status inside input */}
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">
-                {checking && <span className="text-gray-500">Checking...</span>}
-
-                {!checking && error && (
-                  <span className="text-red-500">Invalid</span>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+                {checking && (
+                  <span className="text-slate-500">Checking...</span>
                 )}
-
+                {!checking && error && (
+                  <span className="text-red-400">Invalid</span>
+                )}
                 {!checking && isValidAccount && (
-                  <span className="text-green-600">✔</span>
+                  <span className="text-emerald-400">✔</span>
                 )}
               </div>
             </div>
 
-            {/* Receiver Name BELOW */}
             {!checking && isValidAccount && (
-              <p className="mt-2 text-sm text-green-600 font-medium">
+              <p className="mt-2 text-xs text-emerald-400 font-medium">
                 Receiver: {receiverName}
               </p>
             )}
 
             {!checking && error && (
-              <p className="mt-2 text-sm text-red-500">{error}</p>
+              <p className="mt-2 text-xs text-red-400">{error}</p>
             )}
           </div>
+
+          {/* Extra Fields */}
           {isValidAccount && (
             <>
               <input
@@ -251,34 +260,36 @@ const Transfer = () => {
                 value={formData.amount}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 rounded-lg bg-slate-900/60 border border-slate-700 text-slate-200 focus:outline-none focus:border-emerald-500"
                 placeholder="Amount"
               />
+
               <input
                 type="text"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 rounded-lg bg-slate-900/60 border border-slate-700 text-slate-200 focus:outline-none focus:border-emerald-500"
                 placeholder="Description"
               />
+
               <input
                 type="password"
                 name="transferPin"
                 value={formData.transferPin}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 rounded-lg bg-slate-900/60 border border-slate-700 text-slate-200 focus:outline-none focus:border-emerald-500"
                 placeholder="Transfer PIN"
               />
 
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 rounded-lg font-semibold ${
+                className={`w-full py-3 rounded-lg font-semibold transition-all ${
                   loading
-                    ? "bg-gray-400"
-                    : "bg-green-600 hover:bg-green-700 text-white"
+                    ? "bg-slate-600 text-slate-300"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
                 }`}
               >
                 {loading ? "Processing..." : "Transfer Money"}
@@ -286,23 +297,23 @@ const Transfer = () => {
             </>
           )}
         </form>
-
-        {/* SUCCESS & FAIL MODALS */}
-        {transferStatus === "success" && (
-          <TransferSuccessful
-            amount={transferResult.amount}
-            receiverName={transferResult.receiverName}
-            onClose={() => setTransferStatus(null)}
-          />
-        )}
-
-        {transferStatus === "fail" && (
-          <TransferDecline
-            errorMessage={failMessage}
-            onClose={() => setTransferStatus(null)}
-          />
-        )}
       </div>
+
+      {/* MODALS (unchanged) */}
+      {transferStatus === "success" && (
+        <TransferSuccessful
+          amount={transferResult.amount}
+          receiverName={transferResult.receiverName}
+          onClose={() => setTransferStatus(null)}
+        />
+      )}
+
+      {transferStatus === "fail" && (
+        <TransferDecline
+          errorMessage={failMessage}
+          onClose={() => setTransferStatus(null)}
+        />
+      )}
     </div>
   );
 };
