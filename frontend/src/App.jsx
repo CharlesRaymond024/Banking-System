@@ -47,6 +47,7 @@ import TransactionHistory from "./components/accounts/TransactionHistory";
 import TransactionDetails from "./components/accounts/TransactionDetails";
 import CustomerCareLayout from "./components/CustomerCare/CustomerCareLyout";
 import CustomerCareDashBoard from "./components/CustomerCare/CustomerCareDashBoard";
+import DeleteUser from "./components/delete/DeleteUser";
 
 function App() {
   return (
@@ -95,6 +96,7 @@ function App() {
               path="/superadmin/users/update/:id"
               element={<UpdateUser />}
             />
+            <Route path="/superadmin/:id/delete" element={<DeleteUser />} />
             <Route
               path="/superadmin/bank/update/:id"
               element={<UpdateBank />}

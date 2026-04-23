@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Bank = require('../models/Bank');
+const Notification = require('../models/Notification');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
@@ -127,19 +128,25 @@ exports.updateUser = async (req, res) => {
     }
 }
 exports.deleteUser = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const user = await User.findByPk(id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        await user.destroy();
-        res.status(204).json({message: 'User deleted successfully'});
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-}
+
+    await Notification.destroy({ where: { user: id } });
+
+    await user.destroy();
+
+    res.status(200).json({ message: "User deleted successfully" });
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 exports.getActiveUsers = async (req, res) => {
     try {

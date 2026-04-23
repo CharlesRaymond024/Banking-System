@@ -262,7 +262,11 @@ const SuperAdminUsers = () => {
                       >
                         <HiOutlinePencil size={15} />
                       </button>
-                      <button className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                      <button
+                      onClick={() =>
+                        navigate(`/superadmin/${user.id}/delete`)
+                      }
+                      className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
                         <HiOutlineTrash size={15} />
                       </button>
                     </div>
