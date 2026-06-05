@@ -89,7 +89,7 @@ function App() {
             />
             <Route path="bank/:bank_id" element={<BanksDetails />} />
             <Route path="/superadmin/revenue" element={<BankRevenue />} />
-            <Route path="/bank/create" element={<CreateBank />} />
+            <Route path="/superadmin/bank/create" element={<CreateBank />} />
             <Route
               path="/superadmin/revenue/:bank_id"
               element={<SingleBankRevenue />}
