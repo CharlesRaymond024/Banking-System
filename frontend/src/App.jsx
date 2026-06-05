@@ -48,6 +48,7 @@ import TransactionDetails from "./components/accounts/TransactionDetails";
 import CustomerCareLayout from "./components/CustomerCare/CustomerCareLyout";
 import CustomerCareDashBoard from "./components/CustomerCare/CustomerCareDashBoard";
 import DeleteUser from "./components/delete/DeleteUser";
+import CreateBank from "./components/SuperAdmin/CreateBanks";
 
 function App() {
   return (
@@ -88,6 +89,7 @@ function App() {
             />
             <Route path="bank/:bank_id" element={<BanksDetails />} />
             <Route path="/superadmin/revenue" element={<BankRevenue />} />
+            <Route path="/bank/create" element={<CreateBank />} />
             <Route
               path="/superadmin/revenue/:bank_id"
               element={<SingleBankRevenue />}

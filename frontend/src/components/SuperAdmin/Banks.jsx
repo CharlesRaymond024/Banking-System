@@ -68,6 +68,7 @@ const Bank = () => {
           <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-md shadow-blue-200">
             <MdAccountBalance size={20} className="text-white" />
           </div>
+
           <div>
             <h1
               className="text-xl font-bold text-slate-800"
@@ -78,12 +79,22 @@ const Bank = () => {
             >
               Banks
             </h1>
+
             <p className="text-xs text-slate-400">
               {data?.length ?? 0} registered{" "}
               {data?.length === 1 ? "bank" : "banks"}
             </p>
           </div>
         </div>
+
+        {/* Create Bank Button */}
+        <button
+          onClick={() => navigate("/superadmin/bank/create")}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300 transition-all duration-200 active:scale-95"
+        >
+          <HiOutlinePlus size={16} />
+          Create Bank
+        </button>
       </div>
 
       {/* Bank Cards */}
@@ -187,7 +198,9 @@ const Bank = () => {
                   </button>
 
                   <button
-                    onClick={() => navigate(`/superadmin/bank/update/${bank.id}`)}
+                    onClick={() =>
+                      navigate(`/superadmin/bank/update/${bank.id}`)
+                    }
                     className="w-full inline-flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold py-2.5 rounded-xl shadow-sm hover:shadow transition-all duration-200 active:scale-95"
                   >
                     Edit Bank
