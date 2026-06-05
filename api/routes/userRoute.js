@@ -9,9 +9,9 @@ router.route('/get')
  .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin, roleList.CustomerCare), userController.getAllUsers); // Route to get all users
 router.route('/get/:id')
  .get(authenticateToken, verifyRoles (roleList.Admin, roleList.SuperAdmin, roleList.CustomerCare, roleList.User), userController.getUserById); // Route to get a user by ID
-router.post('/create', userController.createUser); // Route to create a new user (no authentication required for registration)
-// router.route('/create')
-//  .post(authenticateToken, verifyRoles (roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), userController.createUser); // Route to create a new user
+// router.post('/create', userController.createUser); // Route to create a new user (no authentication required for registration)
+router.route('/create')
+ .post(authenticateToken, verifyRoles (roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), userController.createUser); // Route to create a new user
 router.route('/:id/update')
  .put(authenticateToken, verifyRoles (roleList.User, roleList.Admin, roleList.CustomerCare, roleList.SuperAdmin), userController.updateUser); // Route to update a user by ID
 router.route('/:id/delete')

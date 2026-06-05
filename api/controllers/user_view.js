@@ -71,10 +71,10 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
     const { firstname, lastname, email, phone, roles, bank, password } = req.body;
-    // const bankExists = await Bank.findByPk(bank);
-    // if (!bankExists) {
-    //     return res.status(400).json({ message: 'Bank does not exist' });
-    // }
+    const bankExists = await Bank.findByPk(bank);
+    if (!bankExists) {
+        return res.status(400).json({ message: 'Bank does not exist' });
+    }
     // Check if user with same email exists
     const existingUser = await User.findOne({
         where: {
