@@ -1,3 +1,6 @@
 .env
 node_modules
 package-lock.json
+
+
+postgresql://banking_system_7cfu_user:lQmwaGBpCFPXg8YAWt5W95ONMhrjpgKP@dpg-d8he5qjeo5us7384gh5g-a.oregon-postgres.render.com/banking_system_7cfu

@@ -39,7 +39,7 @@ app.use(cookieParser())
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://banking-system-2-d8do.onrender.com", // Replace with your frontend URL
     credentials: true,
   })
 );
