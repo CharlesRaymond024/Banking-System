@@ -17,8 +17,8 @@ exports.login = async (req, res) => {
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "none", // 🔥 MUST be none for cross-site
-      secure: true, // 🔥 MUST be true when sameSite is none // Use secure cookies in production
+      sameSite: "none", // 🔥 MUST be none for cross-site // sameSite: "Lax"
+      secure: true, // 🔥 MUST be true when sameSite is none // Use secure cookies in production // secure: false
     });
 
     res.status(200).json({

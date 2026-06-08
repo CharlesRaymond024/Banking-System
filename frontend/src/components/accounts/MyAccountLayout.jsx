@@ -7,8 +7,10 @@ import {
   FaFileAlt,
   FaUser,
   FaArrowLeft,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import AuthContext from "../../providers/AuthProvider";
 import { useFetch } from "../../hooks/useFetch";
 
@@ -16,6 +18,7 @@ export default function MyAccountLayout() {
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
   const accessToken = auth?.accessToken;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: account, loading } = useFetch(
     auth?.user?.id ? `/account/get-by-user/${auth.user.id}` : null,
@@ -43,6 +46,55 @@ export default function MyAccountLayout() {
 
   const initials = auth?.user?.firstname?.charAt(0)?.toUpperCase();
 
+  const SidebarContent = () => (
+    <>
+      <div className="flex items-center gap-2 mb-7 px-1">
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shadow"
+          style={{
+            background: "linear-gradient(135deg, #10b981, #059669)",
+            color: "#fff",
+          }}
+        >
+          MA
+        </div>
+        <h2 className="text-sm font-bold text-slate-200 tracking-tight">
+          My Account
+        </h2>
+      </div>
+
+      <p className="text-[10px] uppercase tracking-widest text-slate-700 font-semibold px-1 mb-3">
+        Navigation
+      </p>
+
+      <nav className="flex flex-col gap-1">
+        {navItems.map(({ to, icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                isActive
+                  ? "bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 text-emerald-400 border border-emerald-500/30 shadow shadow-emerald-900/10"
+                  : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-300"
+              }`
+            }
+          >
+            <span className="shrink-0">{icon}</span>
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="mt-auto pt-6 border-t border-slate-800/60">
+        <p className="text-[10px] text-slate-700 text-center">
+          © {new Date().getFullYear()} Legion Bank
+        </p>
+      </div>
+    </>
+  );
+
   return (
     <div
       className="flex flex-col min-h-screen"
@@ -60,8 +112,17 @@ export default function MyAccountLayout() {
           backdropFilter: "blur(12px)",
         }}
       >
-        {/* Left: back + title */}
+        {/* Left: hamburger + back + title */}
         <div className="flex items-center gap-3">
+          {/* Mobile sidebar toggle */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden flex items-center justify-center text-slate-400 hover:text-slate-200 border border-slate-700/60 hover:border-slate-600 bg-slate-800/40 hover:bg-slate-700/50 w-9 h-9 rounded-xl transition-all duration-200"
+            aria-label="Open menu"
+          >
+            <FaBars size={14} />
+          </button>
+
           <button
             onClick={handleBack}
             className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700/60 hover:border-slate-600 bg-slate-800/40 hover:bg-slate-700/50 px-3 py-2 rounded-xl transition-all duration-200"
@@ -104,63 +165,49 @@ export default function MyAccountLayout() {
       </header>
 
       {/* ── Body ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* ── Sidebar ──────────────────────────────────────────────── */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* ── Desktop Sidebar ──────────────────────────────────────── */}
         <aside
           className="hidden md:flex w-60 flex-col shrink-0 border-r border-slate-800/70 px-4 py-6"
           style={{
             background: "linear-gradient(160deg, #0d1220 0%, #0b0f1a 100%)",
           }}
         >
-          <div className="flex items-center gap-2 mb-7 px-1">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shadow"
-              style={{
-                background: "linear-gradient(135deg, #10b981, #059669)",
-                color: "#fff",
-              }}
-            >
-              MA
-            </div>
-            <h2 className="text-sm font-bold text-slate-200 tracking-tight">
-              My Account
-            </h2>
-          </div>
+          <SidebarContent />
+        </aside>
 
-          <p className="text-[10px] uppercase tracking-widest text-slate-700 font-semibold px-1 mb-3">
-            Navigation
-          </p>
+        {/* ── Mobile Drawer Backdrop ───────────────────────────────── */}
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className={`md:hidden fixed inset-0 z-50 bg-black/60 transition-opacity duration-300 ${
+            sidebarOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+        />
 
-          <nav className="flex flex-col gap-1">
-            {navItems.map(({ to, icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 text-emerald-400 border border-emerald-500/30 shadow shadow-emerald-900/10"
-                      : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-300"
-                  }`
-                }
-              >
-                <span className="shrink-0">{icon}</span>
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* Sidebar footer hint */}
-          <div className="mt-auto pt-6 border-t border-slate-800/60">
-            <p className="text-[10px] text-slate-700 text-center">
-              © {new Date().getFullYear()} Legion Bank
-            </p>
-          </div>
+        {/* ── Mobile Drawer Sidebar ────────────────────────────────── */}
+        <aside
+          className={`md:hidden fixed top-0 left-0 z-50 h-full w-64 flex flex-col px-4 py-6 border-r border-slate-800/70 transform transition-transform duration-300 ease-out ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          style={{
+            background: "linear-gradient(160deg, #0d1220 0%, #0b0f1a 100%)",
+          }}
+        >
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all duration-200"
+            aria-label="Close menu"
+          >
+            <FaTimes size={14} />
+          </button>
+          <SidebarContent />
         </aside>
 
         {/* ── Main Content ─────────────────────────────────────────── */}
         <main
-          className="flex-1 overflow-auto px-5 md:px-8 py-6"
+          className="flex-1 overflow-auto px-5 md:px-8 py-6 pb-24 md:pb-6"
           style={{ background: "#0e1422" }}
         >
           <Outlet context={{ account, loading }} />
