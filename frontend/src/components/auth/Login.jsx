@@ -30,6 +30,12 @@ const Login = () => {
       const res = await api.post("/auth/login", data);
       const mainRole = res.data.user.roles;
       setAuth({ ...res.data, role: mainRole });
+      if (persist) {
+        localStorage.setItem(
+          "auth",
+          JSON.stringify({ ...res.data, role: mainRole }),
+        );
+      }
       switch (mainRole) {
         case "SuperAdmin":
           navigate("/superadmin");
